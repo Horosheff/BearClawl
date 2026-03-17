@@ -1,0 +1,12 @@
+{
+  "name": "@openclaw/yandexgpt-provider",
+  "version": "2026.3.14",
+  "private": true,
+  "description": "BearClaw YandexGPT (Яндекс Облако) provider plugin",
+  "type": "module",
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

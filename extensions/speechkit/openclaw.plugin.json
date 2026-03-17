@@ -1,0 +1,8 @@
+{
+  "id": "speechkit",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

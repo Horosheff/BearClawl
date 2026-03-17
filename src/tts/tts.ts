@@ -129,6 +129,13 @@ export type ResolvedTtsConfig = {
     proxy?: string;
     timeoutMs?: number;
   };
+  speechkit: {
+    apiKey?: string;
+    folderId?: string;
+    voice: string;
+    lang: string;
+    format: string;
+  };
   prefsPath?: string;
   maxTextLength: number;
   timeoutMs: number;
@@ -318,6 +325,20 @@ export function resolveTtsConfig(cfg: OpenClawConfig): ResolvedTtsConfig {
       saveSubtitles: rawMicrosoft.saveSubtitles ?? false,
       proxy: rawMicrosoft.proxy?.trim() || undefined,
       timeoutMs: rawMicrosoft.timeoutMs,
+    },
+    speechkit: {
+      apiKey: normalizeResolvedSecretInputString({
+        value: raw.speechkit?.apiKey,
+        path: "messages.tts.speechkit.apiKey",
+      }),
+      folderId:
+        raw.speechkit?.folderId?.trim() ||
+        process.env.YANDEX_FOLDER_ID?.trim() ||
+        process.env.YC_FOLDER_ID?.trim() ||
+        undefined,
+      voice: raw.speechkit?.voice?.trim() || "alena",
+      lang: raw.speechkit?.lang?.trim() || "ru-RU",
+      format: raw.speechkit?.format?.trim() || "mp3",
     },
     prefsPath: raw.prefsPath,
     maxTextLength: raw.maxTextLength ?? DEFAULT_MAX_TEXT_LENGTH,
@@ -526,10 +547,13 @@ export function resolveTtsApiKey(
   if (normalizedProvider === "openai") {
     return config.openai.apiKey || process.env.OPENAI_API_KEY;
   }
+  if (normalizedProvider === "speechkit") {
+    return config.speechkit.apiKey || process.env.YANDEX_API_KEY || process.env.YC_API_KEY;
+  }
   return undefined;
 }
 
-export const TTS_PROVIDERS = ["openai", "elevenlabs", "microsoft"] as const;
+export const TTS_PROVIDERS = ["openai", "elevenlabs", "microsoft", "speechkit"] as const;
 
 export function resolveTtsProviderOrder(primary: TtsProvider, cfg?: OpenClawConfig): TtsProvider[] {
   const normalizedPrimary = normalizeSpeechProviderId(primary) ?? primary;

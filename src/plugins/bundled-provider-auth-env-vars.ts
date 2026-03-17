@@ -2,6 +2,7 @@ import ANTHROPIC_MANIFEST from "../../extensions/anthropic/openclaw.plugin.json"
 import BYTEPLUS_MANIFEST from "../../extensions/byteplus/openclaw.plugin.json" with { type: "json" };
 import CLOUDFLARE_AI_GATEWAY_MANIFEST from "../../extensions/cloudflare-ai-gateway/openclaw.plugin.json" with { type: "json" };
 import COPILOT_PROXY_MANIFEST from "../../extensions/copilot-proxy/openclaw.plugin.json" with { type: "json" };
+import GIGACHAT_MANIFEST from "../../extensions/gigachat/openclaw.plugin.json" with { type: "json" };
 import GITHUB_COPILOT_MANIFEST from "../../extensions/github-copilot/openclaw.plugin.json" with { type: "json" };
 import GOOGLE_MANIFEST from "../../extensions/google/openclaw.plugin.json" with { type: "json" };
 import HUGGINGFACE_MANIFEST from "../../extensions/huggingface/openclaw.plugin.json" with { type: "json" };
@@ -28,6 +29,7 @@ import VLLM_MANIFEST from "../../extensions/vllm/openclaw.plugin.json" with { ty
 import VOLCENGINE_MANIFEST from "../../extensions/volcengine/openclaw.plugin.json" with { type: "json" };
 import XAI_MANIFEST from "../../extensions/xai/openclaw.plugin.json" with { type: "json" };
 import XIAOMI_MANIFEST from "../../extensions/xiaomi/openclaw.plugin.json" with { type: "json" };
+import YANDEXGPT_MANIFEST from "../../extensions/yandexgpt/openclaw.plugin.json" with { type: "json" };
 import ZAI_MANIFEST from "../../extensions/zai/openclaw.plugin.json" with { type: "json" };
 
 type ProviderAuthEnvVarManifest = {
@@ -77,6 +79,7 @@ export const BUNDLED_PROVIDER_AUTH_ENV_VAR_CANDIDATES = collectBundledProviderAu
   OPENAI_MANIFEST,
   OPENCODE_GO_MANIFEST,
   OPENCODE_MANIFEST,
+  GIGACHAT_MANIFEST,
   OPENROUTER_MANIFEST,
   QIANFAN_MANIFEST,
   QWEN_PORTAL_AUTH_MANIFEST,
@@ -89,5 +92,6 @@ export const BUNDLED_PROVIDER_AUTH_ENV_VAR_CANDIDATES = collectBundledProviderAu
   VOLCENGINE_MANIFEST,
   XAI_MANIFEST,
   XIAOMI_MANIFEST,
+  YANDEXGPT_MANIFEST,
   ZAI_MANIFEST,
 ]);

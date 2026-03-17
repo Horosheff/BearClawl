@@ -93,6 +93,15 @@ export type TtsConfig = {
     proxy?: string;
     timeoutMs?: number;
   };
+  /** Yandex SpeechKit (TTS). API key + folderId или IAM token. */
+  speechkit?: {
+    apiKey?: SecretInput;
+    folderId?: string;
+    voice?: string;
+    lang?: string;
+    /** mp3, lpcm и др. */
+    format?: string;
+  };
   /** Optional path for local TTS user preferences JSON. */
   prefsPath?: string;
   /** Hard cap for text sent to TTS (chars). */

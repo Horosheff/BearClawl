@@ -1,0 +1,27 @@
+{
+  "id": "gigachat",
+  "providers": ["gigachat"],
+  "providerAuthEnvVars": {
+    "gigachat": ["GIGACHAT_ACCESS_TOKEN", "GIGACHAT_CLIENT_ID", "GIGACHAT_CLIENT_SECRET"]
+  },
+  "providerAuthChoices": [
+    {
+      "provider": "gigachat",
+      "method": "api-key",
+      "choiceId": "gigachat-api-key",
+      "choiceLabel": "GigaChat: токен доступа или Client ID + Secret",
+      "groupId": "gigachat",
+      "groupLabel": "GigaChat (Сбер)",
+      "groupHint": "OAuth или токен",
+      "optionKey": "gigachatApiKey",
+      "cliFlag": "--gigachat-api-key",
+      "cliOption": "--gigachat-api-key <token>",
+      "cliDescription": "GIGACHAT_ACCESS_TOKEN или base64(ClientID:ClientSecret)"
+    }
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

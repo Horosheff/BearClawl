@@ -1,8 +1,8 @@
 {
-  "name": "openclaw",
+  "name": "bearclaw",
   "version": "2026.3.14",
-  "description": "Multi-channel AI gateway with extensible messaging integrations",
-  "keywords": [],
+  "description": "BearClaw — русский персональный AI-агент (GigaChat, YandexGPT и др.)",
+  "keywords": ["bearclaw", "gigachat", "yandexgpt", "ai", "assistant", "russian"],
   "homepage": "https://github.com/openclaw/openclaw#readme",
   "bugs": {
     "url": "https://github.com/openclaw/openclaw/issues"
@@ -14,7 +14,7 @@
     "url": "git+https://github.com/openclaw/openclaw.git"
   },
   "bin": {
-    "openclaw": "openclaw.mjs"
+    "bearclaw": "openclaw.mjs"
   },
   "directories": {
     "doc": "docs",
@@ -24,7 +24,7 @@
     "CHANGELOG.md",
     "LICENSE",
     "openclaw.mjs",
-    "README-header.png",
+    "BearClawlogo.png",
     "README.md",
     "assets/",
     "dist/",
@@ -548,8 +548,8 @@
     "mac:package": "bash scripts/package-mac-app.sh",
     "mac:restart": "bash scripts/restart-mac.sh",
     "moltbot:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
-    "openclaw": "node scripts/run-node.mjs",
-    "openclaw:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
+    "bearclaw": "node scripts/run-node.mjs",
+    "bearclaw:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "plugin-sdk:check-exports": "node scripts/sync-plugin-sdk-exports.mjs --check",
     "plugin-sdk:sync-exports": "node scripts/sync-plugin-sdk-exports.mjs",
     "plugins:sync": "node --import tsx scripts/sync-plugin-versions.ts",
@@ -559,7 +559,7 @@
     "protocol:gen": "node --import tsx scripts/protocol-gen.ts",
     "protocol:gen:swift": "node --import tsx scripts/protocol-gen-swift.ts",
     "release:check": "pnpm config:docs:check && node --import tsx scripts/release-check.ts",
-    "release:openclaw:npm:check": "node --import tsx scripts/openclaw-npm-release-check.ts",
+    "release:bearclaw:npm:check": "node --import tsx scripts/openclaw-npm-release-check.ts",
     "start": "node scripts/run-node.mjs",
     "test": "node scripts/test-parallel.mjs",
     "test:all": "pnpm lint && pnpm build && pnpm test && pnpm test:e2e && pnpm test:live && pnpm test:docker:all",

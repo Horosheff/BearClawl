@@ -1,0 +1,27 @@
+{
+  "id": "yandexgpt",
+  "providers": ["yandexgpt"],
+  "providerAuthEnvVars": {
+    "yandexgpt": ["YANDEX_API_KEY", "YC_API_KEY", "YC_IAM_TOKEN", "YANDEX_FOLDER_ID", "YC_FOLDER_ID"]
+  },
+  "providerAuthChoices": [
+    {
+      "provider": "yandexgpt",
+      "method": "api-key",
+      "choiceId": "yandexgpt-api-key",
+      "choiceLabel": "YandexGPT: IAM-токен или API-ключ",
+      "groupId": "yandexgpt",
+      "groupLabel": "YandexGPT (Яндекс Облако)",
+      "groupHint": "IAM или API Key",
+      "optionKey": "yandexgptApiKey",
+      "cliFlag": "--yandexgpt-api-key",
+      "cliOption": "--yandexgpt-api-key <key>",
+      "cliDescription": "YC_IAM_TOKEN или YC_API_KEY"
+    }
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}
