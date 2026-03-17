@@ -89,9 +89,9 @@ RUN pnpm canvas:a2ui:bundle || \
      echo "stub" > src/canvas-host/a2ui/.bundle.hash && \
      rm -rf vendor/a2ui apps/shared/OpenClawKit/Tools/CanvasA2UI)
 RUN pnpm build:docker
-# Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
+# BearClaw: веб-дашборд отключён; UI build не обязателен (пропускаем при ошибке).
 ENV OPENCLAW_PREFER_PNPM=1
-RUN pnpm ui:build
+RUN pnpm ui:build || echo "UI build skipped (BearClaw: control via Telegram only)"
 
 # Prune dev dependencies and strip build-only metadata before copying
 # runtime assets into the final image.
