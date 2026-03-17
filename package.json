@@ -14,7 +14,8 @@
     "url": "git+https://github.com/Horosheff/BearClawl.git"
   },
   "bin": {
-    "bearclaw": "openclaw.mjs"
+    "bearclaw": "openclaw.mjs",
+    "openclaw": "openclaw.mjs"
   },
   "directories": {
     "doc": "docs",

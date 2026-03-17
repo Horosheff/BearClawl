@@ -21,24 +21,20 @@
 npm install -g bearclaw@latest
 # или: pnpm add -g bearclaw@latest
 
-bearclaw onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
-Мастер настройки (`bearclaw onboard`) проведёт через установку шлюза, рабочего пространства, каналов и скиллов.
+Мастер настройки (`openclaw onboard`) проведёт через установку шлюза, рабочего пространства, канала Telegram и скиллов.
 
 ## Быстрый старт
 
 ```bash
-bearclaw onboard --install-daemon
+openclaw onboard --install-daemon
 
-bearclaw gateway --port 18789 --verbose
-
-# Отправить сообщение
-bearclaw message send --to +79001234567 --message "Привет от BearClaw"
-
-# Поговорить с агентом
-bearclaw agent --message "Что умеет GigaChat?" --thinking high
+openclaw gateway --port 18789 --verbose
 ```
+
+Дальше: откройте дашборд (`openclaw dashboard`), добавьте канал **Telegram** (бот по инструкции в интерфейсе), напишите боту в Telegram — агент BearClaw ответит.
 
 ## Переменные окружения для российских моделей
 
@@ -76,7 +72,7 @@ pnpm install
 pnpm ui:build
 pnpm build
 
-pnpm bearclaw onboard --install-daemon
+pnpm openclaw onboard --install-daemon
 pnpm gateway:watch
 ```
 
