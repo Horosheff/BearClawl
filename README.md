@@ -2,7 +2,7 @@
 
 ![BearClaw](BearClawlogo.png)
 
-**BearClaw** — русский персональный AI-агент на базе [OpenClaw](https://github.com/openclaw/openclaw). Запускается у вас локально, поддерживает российские модели **GigaChat** (Сбер) и **YandexGPT** (Яндекс), а также другие провайдеры. Работает в мессенджерах (WhatsApp, Telegram, Slack, Discord и др.), умеет говорить и слушать, поддерживает скиллы и инструменты.
+**BearClaw** — русский персональный AI-агент на базе [OpenClaw](https://github.com/openclaw/openclaw). Репозиторий: [github.com/Horosheff/BearClawl](https://github.com/Horosheff/BearClawl). Запускается у вас локально, поддерживает российские модели **GigaChat** (Сбер) и **YandexGPT** (Яндекс), а также другие провайдеры. Работает в мессенджерах (WhatsApp, Telegram, Slack, Discord и др.), умеет говорить и слушать, поддерживает скиллы и инструменты.
 
 Если нужен персональный ассистент на русском с поддержкой российских LLM — это он.
 
@@ -65,8 +65,8 @@ BearClaw поддерживает **скиллы** и **инструменты**
 ## Разработка из исходников
 
 ```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+git clone https://github.com/Horosheff/BearClawl.git
+cd BearClawl
 
 pnpm install
 pnpm ui:build

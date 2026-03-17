@@ -3,15 +3,15 @@
   "version": "2026.3.14",
   "description": "BearClaw — русский персональный AI-агент (GigaChat, YandexGPT и др.)",
   "keywords": ["bearclaw", "gigachat", "yandexgpt", "ai", "assistant", "russian"],
-  "homepage": "https://github.com/openclaw/openclaw#readme",
+  "homepage": "https://github.com/Horosheff/BearClawl#readme",
   "bugs": {
-    "url": "https://github.com/openclaw/openclaw/issues"
+    "url": "https://github.com/Horosheff/BearClawl/issues"
   },
   "license": "MIT",
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openclaw/openclaw.git"
+    "url": "git+https://github.com/Horosheff/BearClawl.git"
   },
   "bin": {
     "bearclaw": "openclaw.mjs"
