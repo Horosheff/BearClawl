@@ -119,11 +119,11 @@ export async function handleSlackAction(
   const action = readStringParam(params, "action", { required: true });
   const accountId = readStringParam(params, "accountId");
   const account = resolveSlackAccount({ cfg, accountId });
-  const actionConfig = account.actions ?? cfg.channels?.slack?.actions;
+  const actionConfig = account.actions ?? (cfg.channels?.slack?.actions as Record<string, boolean | undefined> | undefined);
   const isActionEnabled = createActionGate(actionConfig);
   const userToken = account.userToken;
   const botToken = account.botToken?.trim();
-  const allowUserWrites = account.config.userTokenReadOnly === false;
+  const allowUserWrites = account.config?.userTokenReadOnly === false;
 
   // Choose the most appropriate token for Slack read/write operations.
   const getTokenForOperation = (operation: "read" | "write") => {
@@ -219,8 +219,8 @@ export async function handleSlackAction(
           blocks,
         });
 
-        if (threadTs && result.channelId && account.accountId) {
-          recordSlackThreadParticipation(account.accountId, result.channelId, threadTs);
+        if (threadTs && (result as { channelId?: string }).channelId && account.accountId) {
+          recordSlackThreadParticipation(account.accountId, (result as { channelId?: string }).channelId!, threadTs);
         }
 
         // Keep "first" mode consistent even when the agent explicitly provided
@@ -279,13 +279,13 @@ export async function handleSlackAction(
         const before = readStringParam(params, "before");
         const after = readStringParam(params, "after");
         const threadId = readStringParam(params, "threadId");
-        const result = await readSlackMessages(channelId, {
+        const result = (await readSlackMessages(channelId, {
           ...readOpts,
           limit,
           before: before ?? undefined,
           after: after ?? undefined,
           threadId: threadId ?? undefined,
-        });
+        })) as { messages: unknown[]; hasMore: boolean };
         const messages = result.messages.map((message) =>
           withNormalizedTimestamp(
             message as Record<string, unknown>,
@@ -299,15 +299,14 @@ export async function handleSlackAction(
         const channelTarget = readStringParam(params, "channelId") ?? readStringParam(params, "to");
         const channelId = channelTarget ? resolveSlackChannelId(channelTarget) : undefined;
         const threadId = readStringParam(params, "threadId") ?? readStringParam(params, "replyTo");
-        const maxBytes = account.config?.mediaMaxMb
-          ? account.config.mediaMaxMb * 1024 * 1024
-          : 20 * 1024 * 1024;
-        const downloaded = await downloadSlackFile(fileId, {
+        const mediaMaxMb = account.config?.mediaMaxMb ?? account.mediaMaxMb;
+        const maxBytes = mediaMaxMb ? mediaMaxMb * 1024 * 1024 : 20 * 1024 * 1024;
+        const downloaded = (await downloadSlackFile(fileId, {
           ...readOpts,
           maxBytes,
           channelId,
           threadId: threadId ?? undefined,
-        });
+        })) as { path: string; placeholder?: string } | null;
         if (!downloaded) {
           return jsonResult({
             ok: false,
@@ -353,9 +352,9 @@ export async function handleSlackAction(
       }
       return jsonResult({ ok: true });
     }
-    const pins = writeOpts
+    const pins = (writeOpts
       ? await listSlackPins(channelId, readOpts)
-      : await listSlackPins(channelId);
+      : await listSlackPins(channelId)) as Array<{ message?: unknown }>;
     const normalizedPins = pins.map((pin) => {
       const message = pin.message
         ? withNormalizedTimestamp(
@@ -383,7 +382,10 @@ export async function handleSlackAction(
     if (!isActionEnabled("emojiList")) {
       throw new Error("Slack emoji list is disabled.");
     }
-    const result = readOpts ? await listSlackEmojis(readOpts) : await listSlackEmojis();
+    const result = (readOpts ? await listSlackEmojis(readOpts) : await listSlackEmojis()) as {
+      emoji?: Record<string, unknown>;
+      [key: string]: unknown;
+    };
     const limit = readNumberParam(params, "limit", { integer: true });
     if (limit != null && limit > 0 && result.emoji != null) {
       const entries = Object.entries(result.emoji).toSorted(([a], [b]) => a.localeCompare(b));

@@ -72,8 +72,9 @@ export async function resolveGatewayRuntimeConfig(params: {
       );
     }
   }
+  // BearClaw: управление только через Telegram; веб-дашборд отключён.
   const controlUiEnabled =
-    params.controlUiEnabled ?? params.cfg.gateway?.controlUi?.enabled ?? true;
+    false; /* BearClaw Telegram-only: params.controlUiEnabled ?? params.cfg.gateway?.controlUi?.enabled ?? true */
   const openAiChatCompletionsConfig = params.cfg.gateway?.http?.endpoints?.chatCompletions;
   const openAiChatCompletionsEnabled =
     params.openAiChatCompletionsEnabled ?? openAiChatCompletionsConfig?.enabled ?? false;

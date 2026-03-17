@@ -134,21 +134,21 @@ function resolveSlackChannelPolicyEntry(
 ): SlackChannelPolicyEntry | undefined {
   const account = inspectSlackAccount({
     cfg: params.cfg,
-    accountId: params.accountId,
+    accountId: params.accountId ?? undefined,
   });
-  const channels = (account.channels ?? {}) as Record<string, SlackChannelPolicyEntry>;
+  const channels = (account?.channels ?? {}) as Record<string, SlackChannelPolicyEntry>;
   if (Object.keys(channels).length === 0) {
     return undefined;
   }
-  const channelId = params.groupId?.trim();
+  const channelId = params.groupId?.trim() ?? undefined;
   const groupChannel = params.groupChannel;
   const channelName = groupChannel?.replace(/^#/, "");
-  const normalizedName = normalizeHyphenSlug(channelName);
+  const normalizedName = normalizeHyphenSlug(channelName) ?? undefined;
   const candidates = [
     channelId ?? "",
     channelName ? `#${channelName}` : "",
     channelName ?? "",
-    normalizedName,
+    normalizedName ?? "",
   ].filter(Boolean);
   for (const candidate of candidates) {
     if (candidate && channels[candidate]) {

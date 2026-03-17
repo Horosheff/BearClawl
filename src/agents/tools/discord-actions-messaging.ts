@@ -105,9 +105,9 @@ export async function handleDiscordMessagingAction(
         return jsonResult({ ok: true, removed: emoji });
       }
       if (isEmpty) {
-        const removed = accountId
+        const removed = (accountId
           ? await removeOwnReactionsDiscord(channelId, messageId, { ...cfgOptions, accountId })
-          : await removeOwnReactionsDiscord(channelId, messageId, cfgOptions);
+          : await removeOwnReactionsDiscord(channelId, messageId, cfgOptions)) as { removed?: unknown };
         return jsonResult({ ok: true, removed: removed.removed });
       }
       if (accountId) {
@@ -227,12 +227,12 @@ export async function handleDiscordMessagingAction(
         after: readStringParam(params, "after"),
         around: readStringParam(params, "around"),
       };
-      const messages = accountId
+      const messages = (accountId
         ? await readMessagesDiscord(channelId, query, { ...cfgOptions, accountId })
-        : await readMessagesDiscord(channelId, query, cfgOptions);
+        : await readMessagesDiscord(channelId, query, cfgOptions)) as unknown[];
       return jsonResult({
         ok: true,
-        messages: messages.map((message) => normalizeMessage(message)),
+        messages: messages.map((message: unknown) => normalizeMessage(message)),
       });
     }
     case "sendMessage": {
@@ -272,7 +272,7 @@ export async function handleDiscordMessagingAction(
         if (asVoice) {
           throw new Error("Discord components cannot be sent as voice messages.");
         }
-        if (embeds?.length) {
+        if (Array.isArray(embeds) && embeds.length > 0) {
           throw new Error("Discord components cannot include embeds.");
         }
         const normalizedContent = content?.trim() ? content : undefined;
@@ -467,10 +467,10 @@ export async function handleDiscordMessagingAction(
         throw new Error("Discord pins are disabled.");
       }
       const channelId = resolveChannelId();
-      const pins = accountId
+      const pins = (accountId
         ? await listPinsDiscord(channelId, { ...cfgOptions, accountId })
-        : await listPinsDiscord(channelId, cfgOptions);
-      return jsonResult({ ok: true, pins: pins.map((pin) => normalizeMessage(pin)) });
+        : await listPinsDiscord(channelId, cfgOptions)) as unknown[];
+      return jsonResult({ ok: true, pins: pins.map((pin: unknown) => normalizeMessage(pin)) });
     }
     case "searchMessages": {
       if (!isActionEnabled("search")) {

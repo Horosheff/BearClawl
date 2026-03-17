@@ -1,3 +1,4 @@
+/** BearClaw: only Telegram. iMessage exports stubbed. */
 export type { IMessageAccountConfig } from "../config/types.js";
 export type {
   ChannelMessageActionContext,
@@ -29,7 +30,6 @@ export {
   looksLikeIMessageTargetId,
   normalizeIMessageMessagingTarget,
 } from "../channels/plugins/normalize/imessage.js";
-
 export {
   resolveAllowlistProviderRuntimeGroupPolicy,
   resolveDefaultGroupPolicy,
@@ -39,7 +39,31 @@ export {
   resolveIMessageGroupToolPolicy,
 } from "../channels/plugins/group-mentions.js";
 export { IMessageConfigSchema } from "../config/zod-schema.providers-core.js";
-
 export { resolveChannelMediaMaxBytes } from "../channels/plugins/media-limits.js";
 export { collectStatusIssuesFromLastError } from "./status-helpers.js";
-export { sendMessageIMessage } from "../../extensions/imessage/runtime-api.js";
+
+/** BearClaw: stub plugin for tests; real iMessage extension removed. */
+export const imessagePlugin = {
+  id: "imessage" as const,
+  meta: { name: "iMessage (stub)" },
+  capabilities: {},
+  config: {},
+} as any;
+
+const NA = "BearClaw: only Telegram; iMessage is not available";
+export type ParsedChatTarget = { chatId?: string; service?: string };
+export function parseChatAllowTargetPrefixes(): string[] {
+  return [];
+}
+export function parseChatTargetPrefixesOrThrow(): never {
+  throw new Error(NA);
+}
+export function resolveServicePrefixedAllowTarget(): never {
+  throw new Error(NA);
+}
+export function resolveServicePrefixedTarget(): never {
+  throw new Error(NA);
+}
+export function sendMessageIMessage(): Promise<never> {
+  return Promise.reject(new Error(NA));
+}

@@ -21,8 +21,9 @@ export function resolveWhatsAppMentionStripRegexes(ctx: { To?: string | null }):
 }
 
 type WhatsAppChunker = NonNullable<ChannelOutboundAdapter["chunker"]>;
-type WhatsAppSendMessage = PluginRuntimeChannel["whatsapp"]["sendMessageWhatsApp"];
-type WhatsAppSendPoll = PluginRuntimeChannel["whatsapp"]["sendPollWhatsApp"];
+type WhatsAppWhatsapp = NonNullable<PluginRuntimeChannel["whatsapp"]>;
+type WhatsAppSendMessage = WhatsAppWhatsapp["sendMessageWhatsApp"];
+type WhatsAppSendPoll = WhatsAppWhatsapp["sendPollWhatsApp"];
 
 type CreateWhatsAppOutboundBaseParams = {
   chunker: WhatsAppChunker;
@@ -75,7 +76,7 @@ export function createWhatsAppOutboundBase({
         accountId: accountId ?? undefined,
         gifPlayback,
       });
-      return { channel: "whatsapp", ...result };
+      return { channel: "whatsapp" as const, messageId: result?.messageId ?? "" };
     },
     sendMedia: async ({
       cfg,
@@ -93,11 +94,11 @@ export function createWhatsAppOutboundBase({
         verbose: false,
         cfg,
         mediaUrl,
-        mediaLocalRoots,
+        mediaLocalRoots: mediaLocalRoots ? [...mediaLocalRoots] : undefined,
         accountId: accountId ?? undefined,
         gifPlayback,
       });
-      return { channel: "whatsapp", ...result };
+      return { channel: "whatsapp" as const, messageId: result?.messageId ?? "" };
     },
     sendPoll: async ({ cfg, to, poll, accountId }) =>
       await sendPollWhatsApp(to, poll, {

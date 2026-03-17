@@ -12,8 +12,20 @@ function relativeSymlinkTarget(sourcePath, targetPath) {
   return relativeTarget || ".";
 }
 
-function symlinkPath(sourcePath, targetPath, type) {
-  fs.symlinkSync(relativeSymlinkTarget(sourcePath, targetPath), targetPath, type);
+function symlinkOrCopyPath(sourcePath, targetPath) {
+  if (process.platform === "win32") {
+    fs.copyFileSync(sourcePath, targetPath);
+    return;
+  }
+  try {
+    fs.symlinkSync(relativeSymlinkTarget(sourcePath, targetPath), targetPath);
+  } catch (err) {
+    if (err.code === "EPERM" || err.code === "ENOTSUP") {
+      fs.copyFileSync(sourcePath, targetPath);
+    } else {
+      throw err;
+    }
+  }
 }
 
 function shouldWrapRuntimeJsFile(sourcePath) {
@@ -81,7 +93,7 @@ function stagePluginRuntimeOverlay(sourceDir, targetDir) {
       continue;
     }
 
-    symlinkPath(sourcePath, targetPath);
+    symlinkOrCopyPath(sourcePath, targetPath);
   }
 }
 
@@ -89,6 +101,10 @@ function linkPluginNodeModules(params) {
   const runtimeNodeModulesDir = path.join(params.runtimePluginDir, "node_modules");
   removePathIfExists(runtimeNodeModulesDir);
   if (!fs.existsSync(params.sourcePluginNodeModulesDir)) {
+    return;
+  }
+  if (process.platform === "win32") {
+    fs.cpSync(params.sourcePluginNodeModulesDir, runtimeNodeModulesDir, { recursive: true });
     return;
   }
   fs.symlinkSync(params.sourcePluginNodeModulesDir, runtimeNodeModulesDir, symlinkType());

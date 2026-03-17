@@ -17,7 +17,6 @@ import type { RuntimeEnv } from "../runtime.js";
 import { getTerminalTableWidth, renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { formatHealthChannelLines, type HealthSummary } from "./health.js";
-import { resolveControlUiLinks } from "./onboard-helpers.js";
 import { statusAllCommand } from "./status-all.js";
 import { groupChannelIssuesByChannel } from "./status-all/channel-issues.js";
 import { formatGatewayAuthUsed } from "./status-all/format.js";
@@ -250,19 +249,8 @@ export async function statusCommand(
     runtime.log("");
   }
 
-  const dashboard = (() => {
-    const controlUiEnabled = cfg.gateway?.controlUi?.enabled ?? true;
-    if (!controlUiEnabled) {
-      return "disabled";
-    }
-    const links = resolveControlUiLinks({
-      port: resolveGatewayPort(cfg),
-      bind: cfg.gateway?.bind,
-      customBindHost: cfg.gateway?.customBindHost,
-      basePath: cfg.gateway?.controlUi?.basePath,
-    });
-    return links.httpUrl;
-  })();
+  // BearClaw: веб-дашборд отключён, управление через Telegram.
+  const dashboard = "Telegram";
 
   const gatewayValue = (() => {
     const target = remoteUrlMissing
@@ -418,7 +406,7 @@ export async function statusCommand(
   const gitLabel = formatGitInstallLabel(update);
 
   const overviewRows = [
-    { Item: "Dashboard", Value: dashboard },
+    { Item: "Управление", Value: dashboard },
     { Item: "OS", Value: `${osSummary.label} · node ${process.versions.node}` },
     {
       Item: "Tailscale",

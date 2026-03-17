@@ -38,21 +38,21 @@ export async function inspectReadOnlyChannelAccount(params: {
     const { inspectDiscordAccount } = await loadDiscordInspectModule();
     return inspectDiscordAccount({
       cfg: params.cfg,
-      accountId: params.accountId,
+      accountId: params.accountId ?? undefined,
     });
   }
   if (params.channelId === "slack") {
     const { inspectSlackAccount } = await loadSlackInspectModule();
     return inspectSlackAccount({
       cfg: params.cfg,
-      accountId: params.accountId,
+      accountId: params.accountId ?? undefined,
     });
   }
   if (params.channelId === "telegram") {
     const { inspectTelegramAccount } = await loadTelegramInspectModule();
     return inspectTelegramAccount({
       cfg: params.cfg,
-      accountId: params.accountId,
+      accountId: params.accountId ?? undefined,
     });
   }
   return null;

@@ -644,7 +644,9 @@ export async function compactEmbeddedPiSessionDirect(
                 accountId: params.agentAccountId ?? undefined,
               });
               const level = resolved.agentReactionGuidance;
-              return level ? { level, channel: "Signal" } : undefined;
+              return level && level !== "none"
+                ? { level: level as "minimal" | "extensive", channel: "Signal" }
+                : undefined;
             }
             return undefined;
           })()

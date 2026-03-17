@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { discordPlugin } from "../../extensions/discord/src/channel.js";
+import { discordPlugin } from "../plugin-sdk/discord.js";
 import { createTestRegistry } from "../test-utils/channel-plugins.js";
 import {
   __testing,

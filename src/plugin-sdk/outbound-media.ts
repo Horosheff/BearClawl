@@ -12,6 +12,6 @@ export async function loadOutboundMediaFromUrl(
 ) {
   return await loadWebMedia(mediaUrl, {
     maxBytes: options.maxBytes,
-    localRoots: options.mediaLocalRoots,
+    mediaLocalRoots: options.mediaLocalRoots,
   });
 }

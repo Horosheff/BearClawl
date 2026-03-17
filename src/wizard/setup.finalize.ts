@@ -360,9 +360,8 @@ export async function finalizeSetupWizard(
         "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
         `View token: ${formatCliCommand("openclaw config get gateway.auth.token")}`,
         `Generate token: ${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
-        "Web UI keeps dashboard URL tokens in memory for the current tab and strips them from the URL after load.",
-        `Open the dashboard anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
-        "If prompted: paste the token into Control UI settings (or use the tokenized dashboard URL).",
+        "BearClaw: управление только через Telegram. Веб-дашборд отключён.",
+        "Подключите бота в Telegram и управляйте агентом там.",
       ].join("\n"),
       "Token",
     );
@@ -371,8 +370,7 @@ export async function finalizeSetupWizard(
       message: "How do you want to hatch your bot?",
       options: [
         { value: "tui", label: "Hatch in TUI (recommended)" },
-        { value: "web", label: "Open the Web UI" },
-        { value: "later", label: "Do this later" },
+        { value: "later", label: "Do this later (use Telegram)" },
       ],
       initialValue: "tui",
     });
@@ -388,39 +386,9 @@ export async function finalizeSetupWizard(
         message: hasBootstrap ? "Wake up, my friend!" : undefined,
       });
       launchedTui = true;
-    } else if (hatchChoice === "web") {
-      const browserSupport = await detectBrowserOpenSupport();
-      if (browserSupport.ok) {
-        controlUiOpened = await openUrl(authedUrl);
-        if (!controlUiOpened) {
-          controlUiOpenHint = formatControlUiSshHint({
-            port: settings.port,
-            basePath: controlUiBasePath,
-            token: settings.authMode === "token" ? settings.gatewayToken : undefined,
-          });
-        }
-      } else {
-        controlUiOpenHint = formatControlUiSshHint({
-          port: settings.port,
-          basePath: controlUiBasePath,
-          token: settings.authMode === "token" ? settings.gatewayToken : undefined,
-        });
-      }
-      await prompter.note(
-        [
-          `Dashboard link (with token): ${authedUrl}`,
-          controlUiOpened
-            ? "Opened in your browser. Keep that tab to control OpenClaw."
-            : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
-          controlUiOpenHint,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-        "Dashboard ready",
-      );
     } else {
       await prompter.note(
-        `When you're ready: ${formatCliCommand("openclaw dashboard --no-open")}`,
+        "BearClaw: управление через Telegram. Подключите бота в настройках канала и пишите ему в Telegram.",
         "Later",
       );
     }
@@ -443,42 +411,10 @@ export async function finalizeSetupWizard(
 
   await setupWizardShellCompletion({ flow, prompter });
 
-  const shouldOpenControlUi =
-    !opts.skipUi &&
-    settings.authMode === "token" &&
-    Boolean(settings.gatewayToken) &&
-    hatchChoice === null;
+  // BearClaw: веб-дашборд отключён; управление только через Telegram.
+  const shouldOpenControlUi = false;
   if (shouldOpenControlUi) {
-    const browserSupport = await detectBrowserOpenSupport();
-    if (browserSupport.ok) {
-      controlUiOpened = await openUrl(authedUrl);
-      if (!controlUiOpened) {
-        controlUiOpenHint = formatControlUiSshHint({
-          port: settings.port,
-          basePath: controlUiBasePath,
-          token: settings.gatewayToken,
-        });
-      }
-    } else {
-      controlUiOpenHint = formatControlUiSshHint({
-        port: settings.port,
-        basePath: controlUiBasePath,
-        token: settings.gatewayToken,
-      });
-    }
-
-    await prompter.note(
-      [
-        `Dashboard link (with token): ${authedUrl}`,
-        controlUiOpened
-          ? "Opened in your browser. Keep that tab to control OpenClaw."
-          : "Copy/paste this URL in a browser on this machine to control OpenClaw.",
-        controlUiOpenHint,
-      ]
-        .filter(Boolean)
-        .join("\n"),
-      "Dashboard ready",
-    );
+    // No-op: Control UI disabled for BearClaw.
   }
 
   const webSearchProvider = nextConfig.tools?.web?.search?.provider;
@@ -568,11 +504,7 @@ export async function finalizeSetupWizard(
   );
 
   await prompter.outro(
-    controlUiOpened
-      ? "Onboarding complete. Dashboard opened; keep that tab to control OpenClaw."
-      : seededInBackground
-        ? "Onboarding complete. Web UI seeded in the background; open it anytime with the dashboard link above."
-        : "Onboarding complete. Use the dashboard link above to control OpenClaw.",
+    "Onboarding complete. BearClaw: управление через Telegram. Подключите бота и пишите ему в Telegram.",
   );
 
   return { launchedTui };

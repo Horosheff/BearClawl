@@ -1,4 +1,4 @@
-import { parseDiscordTarget } from "../../../extensions/discord/api.js";
+import { parseDiscordTarget } from "../../plugin-sdk/discord.js";
 import { parseTelegramTarget } from "../../../extensions/telegram/api.js";
 import type { ChatType } from "../chat-type.js";
 import { normalizeChatChannelId } from "../registry.js";

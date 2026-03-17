@@ -69,8 +69,12 @@ export async function listSlackDirectoryPeersFromConfig(
   }
   const ids = new Set<string>();
 
-  addAllowFromAndDmsIds(ids, account.config.allowFrom ?? account.dm?.allowFrom, account.config.dms);
-  for (const channel of Object.values(account.config.channels ?? {})) {
+  addAllowFromAndDmsIds(
+    ids,
+    (account.config?.allowFrom ?? account.dm?.allowFrom) as readonly unknown[] | undefined,
+    account.config?.dms as Record<string, unknown> | undefined,
+  );
+  for (const channel of Object.values(account.config?.channels ?? {})) {
     addTrimmedEntries(ids, channel.users ?? []);
   }
 
@@ -97,7 +101,7 @@ export async function listSlackDirectoryGroupsFromConfig(
   if (!account || !("config" in account)) {
     return [];
   }
-  const ids = Object.keys(account.config.channels ?? {})
+  const ids = Object.keys(account.config?.channels ?? {})
     .map((raw) => raw.trim())
     .filter(Boolean)
     .map((raw) => normalizeSlackMessagingTarget(raw) ?? raw.toLowerCase())
@@ -120,10 +124,10 @@ export async function listDiscordDirectoryPeersFromConfig(
 
   addAllowFromAndDmsIds(
     ids,
-    account.config.allowFrom ?? account.config.dm?.allowFrom,
-    account.config.dms,
+    (account.config?.allowFrom ?? account.config?.dm?.allowFrom) as readonly unknown[] | undefined,
+    account.config?.dms as Record<string, unknown> | undefined,
   );
-  for (const guild of Object.values(account.config.guilds ?? {})) {
+  for (const guild of Object.values(account.config?.guilds ?? {})) {
     addTrimmedEntries(ids, guild.users ?? []);
     for (const channel of Object.values(guild.channels ?? {})) {
       addTrimmedEntries(ids, channel.users ?? []);
@@ -153,7 +157,7 @@ export async function listDiscordDirectoryGroupsFromConfig(
     return [];
   }
   const ids = new Set<string>();
-  for (const guild of Object.values(account.config.guilds ?? {})) {
+  for (const guild of Object.values(account.config?.guilds ?? {})) {
     addTrimmedEntries(ids, Object.keys(guild.channels ?? {}));
   }
 

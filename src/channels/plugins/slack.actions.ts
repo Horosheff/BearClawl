@@ -36,7 +36,7 @@ export function createSlackActions(
       return await handleSlackMessageAction({
         providerId,
         ctx,
-        normalizeChannelId: resolveSlackChannelId,
+        normalizeChannelId: (id: string) => resolveSlackChannelId(id) || id,
         includeReadThreadId: true,
         invoke: async (action, cfg, toolContext) =>
           await (options?.invoke

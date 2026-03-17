@@ -96,7 +96,7 @@ export async function handleDiscordPresenceAction(
     afk: false,
   };
 
-  gateway.updatePresence(presenceData);
+  gateway.updatePresence?.(presenceData);
 
   return jsonResult({
     ok: true,

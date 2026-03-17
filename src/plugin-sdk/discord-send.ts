@@ -1,4 +1,5 @@
-import type { DiscordSendResult } from "../../extensions/discord/api.js";
+/** BearClaw: Discord stubbed. */
+export type DiscordSendResult = { messageId?: string; channelId?: string };
 
 type DiscordSendOptionInput = {
   replyToId?: string | null;

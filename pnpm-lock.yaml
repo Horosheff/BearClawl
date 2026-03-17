@@ -342,8 +342,6 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
 
-  extensions/discord: {}
-
   extensions/elevenlabs: {}
 
   extensions/feishu:
@@ -363,6 +361,8 @@ importers:
 
   extensions/firecrawl: {}
 
+  extensions/gigachat: {}
+
   extensions/github-copilot: {}
 
   extensions/google: {}
@@ -377,8 +377,6 @@ importers:
         version: 2026.3.13(@discordjs/opus@0.10.0)(@napi-rs/canvas@0.1.95)(@types/express@5.0.6)(audio-decode@2.2.3)(node-llama-cpp@3.16.2(typescript@5.9.3))
 
   extensions/huggingface: {}
-
-  extensions/imessage: {}
 
   extensions/irc:
     dependencies:
@@ -511,9 +509,7 @@ importers:
 
   extensions/sglang: {}
 
-  extensions/signal: {}
-
-  extensions/slack: {}
+  extensions/speechkit: {}
 
   extensions/synology-chat:
     dependencies:
@@ -580,11 +576,11 @@ importers:
 
   extensions/volcengine: {}
 
-  extensions/whatsapp: {}
-
   extensions/xai: {}
 
   extensions/xiaomi: {}
+
+  extensions/yandexgpt: {}
 
   extensions/zai: {}
 
@@ -611,13 +607,13 @@ importers:
 
   packages/clawdbot:
     dependencies:
-      openclaw:
+      bearclaw:
         specifier: workspace:*
         version: link:../..
 
   packages/moltbot:
     dependencies:
-      openclaw:
+      bearclaw:
         specifier: workspace:*
         version: link:../..
 

@@ -34,7 +34,7 @@ openclaw onboard --install-daemon
 openclaw gateway --port 18789 --verbose
 ```
 
-Дальше: откройте дашборд (`openclaw dashboard`), добавьте канал **Telegram** (бот по инструкции в интерфейсе), напишите боту в Telegram — агент BearClaw ответит.
+Дальше: в онбординге добавьте канал **Telegram** (создайте бота через [@BotFather](https://t.me/BotFather) и укажите токен), напишите боту в Telegram — агент BearClaw ответит. Управление только через Telegram, веб-дашборд отключён.
 
 ## Переменные окружения для российских моделей
 
@@ -69,7 +69,6 @@ git clone https://github.com/Horosheff/BearClawl.git
 cd BearClawl
 
 pnpm install
-pnpm ui:build
 pnpm build
 
 pnpm openclaw onboard --install-daemon
