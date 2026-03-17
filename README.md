@@ -2,7 +2,7 @@
 
 ![BearClaw](BearClawlogo.png)
 
-**BearClaw** — русский персональный AI-агент на базе [OpenClaw](https://github.com/openclaw/openclaw). Репозиторий: [github.com/Horosheff/BearClawl](https://github.com/Horosheff/BearClawl). Запускается у вас локально, поддерживает российские модели **GigaChat** (Сбер) и **YandexGPT** (Яндекс), а также другие провайдеры. Работает в мессенджерах (WhatsApp, Telegram, Slack, Discord и др.), умеет говорить и слушать, поддерживает скиллы и инструменты.
+**BearClaw** — русский персональный AI-агент на базе [OpenClaw](https://github.com/openclaw/openclaw). Репозиторий: [github.com/Horosheff/BearClawl](https://github.com/Horosheff/BearClawl). Запускается у вас локально, поддерживает российские модели **GigaChat** (Сбер) и **YandexGPT** (Яндекс), а также другие провайдеры. Работает в **Telegram** (поддержка других мессенджеров в BearClaw отключена), умеет говорить и слушать, поддерживает скиллы и инструменты.
 
 Если нужен персональный ассистент на русском с поддержкой российских LLM — это он.
 
@@ -55,6 +55,10 @@ bearclaw agent --message "Что умеет GigaChat?" --thinking high
 - `YANDEX_API_KEY` или `YC_API_KEY` — тот же API-ключ (или IAM-токен).
 - `YANDEX_FOLDER_ID` или `YC_FOLDER_ID` — для аккаунтов с каталогом.
 - В конфиге: `messages.tts.provider: "speechkit"`, опционально `messages.tts.speechkit.voice` (по умолчанию `alena`), `lang` (`ru-RU`), `format` (`mp3`). Голоса: alena, filipp, ermil, oksana, jane, omazh, zahar, marina.
+
+## Только Telegram
+
+BearClaw ориентирован на один канал — **Telegram**. Чтобы не подключать остальные мессенджеры, в конфиге укажите `plugins.allow` только нужными плагинами, например: `["telegram", "gigachat", "yandexgpt", "speechkit", "openai"]` (и другие провайдеры/скиллы по необходимости).
 
 ## Скиллы и MCP
 
