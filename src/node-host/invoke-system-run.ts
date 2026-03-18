@@ -15,6 +15,7 @@ import {
 import type { ExecHostRequest, ExecHostResponse, ExecHostRunResult } from "../infra/exec-host.js";
 import { resolveExecSafeBinRuntimePolicy } from "../infra/exec-safe-bin-runtime-policy.js";
 import { sanitizeSystemRunEnvOverrides } from "../infra/host-env-security.js";
+import { getOpenClawPackageNameSync } from "../infra/openclaw-root.js";
 import { normalizeSystemRunApprovalPlan } from "../infra/system-run-approval-binding.js";
 import { resolveSystemRunCommandRequest } from "../infra/system-run-command.js";
 import { logWarn } from "../logger.js";
@@ -280,7 +281,11 @@ async function evaluateSystemRunPolicyPhase(
   const configuredSecurity = opts.resolveExecSecurity(
     agentExec?.security ?? cfg.tools?.exec?.security,
   );
-  const configuredAsk = opts.resolveExecAsk(agentExec?.ask ?? cfg.tools?.exec?.ask);
+  // BearClaw: по умолчанию не спрашивать — агент сразу выполняет установку скиллов и т.д.
+  const rawAsk = agentExec?.ask ?? cfg.tools?.exec?.ask;
+  const bearClawDefaultAsk =
+    getOpenClawPackageNameSync({ moduleUrl: import.meta.url }) === "bearclaw" ? "off" : undefined;
+  const configuredAsk = opts.resolveExecAsk(rawAsk ?? bearClawDefaultAsk);
   const approvals = resolveExecApprovals(parsed.agentId, {
     security: configuredSecurity,
     ask: configuredAsk,

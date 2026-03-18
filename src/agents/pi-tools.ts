@@ -58,9 +58,15 @@ import {
 } from "./tool-policy.js";
 import { resolveWorkspaceRoot } from "./workspace-dir.js";
 
+/** OpenAI-совместимый API: apply_patch и другие инструменты доступны при включённом конфиге. */
 function isOpenAIProvider(provider?: string) {
   const normalized = provider?.trim().toLowerCase();
-  return normalized === "openai" || normalized === "openai-codex";
+  return (
+    normalized === "openai" ||
+    normalized === "openai-codex" ||
+    normalized === "yandexgpt" ||
+    normalized === "gigachat"
+  );
 }
 
 const TOOL_DENY_BY_MESSAGE_PROVIDER: Readonly<Record<string, readonly string[]>> = {
@@ -351,14 +357,21 @@ export function createOpenClawCodingTools(options?: {
   // Secure by default: apply_patch is workspace-contained unless explicitly disabled.
   // (tools.fs.workspaceOnly is a separate umbrella flag for read/write/edit/apply_patch.)
   const applyPatchWorkspaceOnly = workspaceOnly || applyPatchConfig?.workspaceOnly !== false;
+  const openAiCompat = isOpenAIProvider(options?.modelProvider);
+  const applyPatchAllowedForModel = isApplyPatchAllowedForModel({
+    modelProvider: options?.modelProvider,
+    modelId: options?.modelId,
+    allowModels: applyPatchConfig?.allowModels,
+  });
+  // Для YandexGPT/GigaChat включаем apply_patch по умолчанию (кодинг без явного enabled).
+  const providerDefaultApplyPatch =
+    (options?.modelProvider?.trim().toLowerCase() === "yandexgpt" ||
+      options?.modelProvider?.trim().toLowerCase() === "gigachat") &&
+    applyPatchConfig?.enabled !== false;
   const applyPatchEnabled =
-    !!applyPatchConfig?.enabled &&
-    isOpenAIProvider(options?.modelProvider) &&
-    isApplyPatchAllowedForModel({
-      modelProvider: options?.modelProvider,
-      modelId: options?.modelId,
-      allowModels: applyPatchConfig?.allowModels,
-    });
+    openAiCompat &&
+    applyPatchAllowedForModel &&
+    (!!applyPatchConfig?.enabled || providerDefaultApplyPatch);
 
   if (sandboxRoot && !sandboxFsBridge) {
     throw new Error("Sandbox filesystem bridge is unavailable.");

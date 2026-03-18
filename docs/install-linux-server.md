@@ -218,7 +218,23 @@ sudo systemctl status bearclaw-gateway
 
 ---
 
-## 8. Docker (альтернатива)
+## 8. Инструменты кодинга (полный набор)
+
+Чтобы агент мог полноценно кодить (патчи, планировщик, генерация изображений):
+
+- **apply_patch** — для YandexGPT и GigaChat включён по умолчанию. Для OpenAI нужно явно задать в конфиге:  
+  `openclaw config set tools.exec.applyPatch.enabled true`
+- **cron** — уже входит в профиль «coding», дополнительно настраивать не нужно.
+- **image** (понимание изображений) — работает, если модель поддерживает vision (YandexGPT с поддержкой картинок).
+- **image_generate** (генерация картинок) — нужен настроенный провайдер генерации. Пример (если у вас есть модель для картинок):  
+  `openclaw config set agents.defaults.imageGenerationModel.primary "openai/gpt-image-1"`  
+  (подставьте свой провайдер/модель из списка, который возвращает инструмент `image_generate` с `action="list"`.)
+
+Профиль инструментов по умолчанию — **coding**; при необходимости его можно сменить в конфиге (`tools.profile` или в агенте).
+
+---
+
+## 9. Docker (альтернатива)
 
 Образы публикуются в GitHub Container Registry (lowercase):
 
