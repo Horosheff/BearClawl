@@ -26,7 +26,12 @@ curl -fsSL -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://raw.githu
 curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash -s -- --no-onboard
 ```
 
-**Если установка пишет, что `openclaw` не в PATH:** в этой же сессии скрипт уже добавляет каталог npm в PATH; откройте новый терминал или выполните `hash -r`, затем `openclaw onboard --install-daemon`.
+**Если установка пишет, что `openclaw` не в PATH:** выполните `hash -r` и снова запустите онбординг: `openclaw onboard --install-daemon`. Либо укажите полный путь: `/usr/bin/openclaw onboard --install-daemon`.
+
+**Чтобы поставить именно сборку из этого репозитория** (а не пакет из npm): используйте установку из git — тогда будет наша версия и все изменения:
+```bash
+curl -fsSL -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh' | bash -s -- --install-method git
+```
 
 **Если при установке build tools появляется ошибка про lock dpkg** (`Could not get lock /var/lib/dpkg/lock-frontend`, процесс `unattended-upgr`): в фоне идёт обновление пакетов. Дождитесь окончания (например, `sudo lsof /var/lib/dpkg/lock-frontend` покажет процесс) или отложите установку и запустите скрипт позже.
 

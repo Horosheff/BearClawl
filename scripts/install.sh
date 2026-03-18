@@ -2422,6 +2422,14 @@ main() {
         hash -r 2>/dev/null || true
     fi
     OPENCLAW_BIN="$(resolve_openclaw_bin || true)"
+    # Явно подставляем путь к бинарнику, если type -P не сработал (например, в pipe curl|bash).
+    if [[ -z "$OPENCLAW_BIN" && -n "$npm_bin" ]]; then
+        if [[ -x "${npm_bin}/openclaw" ]]; then
+            OPENCLAW_BIN="${npm_bin}/openclaw"
+        elif [[ -x "${npm_bin}/bearclaw" ]]; then
+            OPENCLAW_BIN="${npm_bin}/bearclaw"
+        fi
+    fi
 
     # PATH warning: installs can succeed while the user's login shell still lacks npm's global bin dir.
     if [[ "$INSTALL_METHOD" == "npm" ]]; then
