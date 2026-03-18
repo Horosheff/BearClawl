@@ -243,7 +243,7 @@ print_gum_status() {
 print_installer_banner() {
     if [[ -n "$GUM" ]]; then
         local title tagline hint card
-        title="$("$GUM" style --foreground "#ff4d4d" --bold "🦞 OpenClaw Installer")"
+        title="$("$GUM" style --foreground "#ff4d4d" --bold "🦞 ${INSTALLER_PRODUCT} Installer")"
         tagline="$("$GUM" style --foreground "#8892b0" "$TAGLINE")"
         hint="$("$GUM" style --foreground "#5a6480" "modern installer mode")"
         card="$(printf '%s\n%s\n%s' "$title" "$tagline" "$hint")"
@@ -253,7 +253,7 @@ print_installer_banner() {
     fi
 
     echo -e "${ACCENT}${BOLD}"
-    echo "  🦞 OpenClaw Installer"
+    echo "  🦞 ${INSTALLER_PRODUCT} Installer"
     echo -e "${NC}${INFO}  ${TAGLINE}${NC}"
     echo ""
 }
@@ -703,7 +703,7 @@ run_npm_global_install() {
         local log_quoted=""
         printf -v cmd_quoted '%q ' "${cmd[@]}"
         printf -v log_quoted '%q' "$log"
-        run_with_spinner "Installing OpenClaw package" bash -c "${cmd_quoted}>${log_quoted} 2>&1"
+        run_with_spinner "Installing ${INSTALLER_PRODUCT} package" bash -c "${cmd_quoted}>${log_quoted} 2>&1"
         return $?
     fi
 
@@ -799,7 +799,7 @@ install_openclaw_npm() {
             attempted_build_tool_fix=true
             ui_info "Retrying npm install after build tools setup"
             if run_npm_global_install "$spec" "$log"; then
-                ui_success "OpenClaw npm package installed"
+                ui_success "${INSTALLER_PRODUCT} npm package installed"
                 return 0
             fi
         fi
@@ -819,7 +819,7 @@ install_openclaw_npm() {
             ui_warn "npm left stale directory; cleaning and retrying"
             cleanup_npm_openclaw_paths
             if run_npm_global_install "$spec" "$log"; then
-                ui_success "OpenClaw npm package installed"
+                ui_success "${INSTALLER_PRODUCT} npm package installed"
                 return 0
             fi
             return 1
@@ -829,7 +829,7 @@ install_openclaw_npm() {
             conflict="$(extract_openclaw_conflict_path "$log" || true)"
             if [[ -n "$conflict" ]] && cleanup_openclaw_bin_conflict "$conflict"; then
                 if run_npm_global_install "$spec" "$log"; then
-                    ui_success "OpenClaw npm package installed"
+                    ui_success "${INSTALLER_PRODUCT} npm package installed"
                     return 0
                 fi
                 return 1
@@ -842,7 +842,7 @@ install_openclaw_npm() {
         fi
         return 1
     fi
-    ui_success "OpenClaw npm package installed"
+    ui_success "${INSTALLER_PRODUCT} npm package installed"
     return 0
 }
 
@@ -2045,9 +2045,9 @@ install_openclaw() {
         resolved_version="$(npm view "${package_name}@${OPENCLAW_VERSION}" version 2>/dev/null || true)"
     fi
     if [[ -n "$resolved_version" ]]; then
-        ui_info "Installing OpenClaw v${resolved_version}"
+        ui_info "Installing ${INSTALLER_PRODUCT} v${resolved_version}"
     else
-        ui_info "Installing OpenClaw (${OPENCLAW_VERSION})"
+        ui_info "Installing ${INSTALLER_PRODUCT} (${OPENCLAW_VERSION})"
     fi
     local install_spec=""
     install_spec="$(resolve_package_install_spec "${package_name}" "${OPENCLAW_VERSION}")"
@@ -2068,7 +2068,7 @@ install_openclaw() {
 
     ensure_openclaw_bin_link || true
 
-    ui_success "OpenClaw installed"
+    ui_success "${INSTALLER_PRODUCT} installed"
 }
 
 # Run doctor for migrations (safe, non-interactive)
@@ -2367,13 +2367,14 @@ main() {
         exit 1
     fi
 
-    ui_stage "Installing OpenClaw"
+    ui_stage "Installing ${INSTALLER_PRODUCT}"
 
     local final_git_dir=""
     if [[ "$INSTALL_METHOD" == "git" ]]; then
         # Clean up npm global install if switching to git
-        if npm list -g openclaw &>/dev/null; then
+        if npm list -g "${INSTALLER_PKG_NAME}" &>/dev/null || npm list -g openclaw &>/dev/null; then
             ui_info "Removing npm global install (switching to git)"
+            npm uninstall -g "${INSTALLER_PKG_NAME}" 2>/dev/null || true
             npm uninstall -g openclaw 2>/dev/null || true
             ui_success "npm global install removed"
         fi
@@ -2406,11 +2407,16 @@ main() {
 
     ui_stage "Finalizing setup"
 
+    # Refresh PATH so 'openclaw' is found in this shell (same session after npm install -g).
+    local npm_bin=""
+    npm_bin="$(npm_global_bin_dir || true)"
+    if [[ -n "$npm_bin" && -d "$npm_bin" ]]; then
+        export PATH="${npm_bin}:${PATH}"
+        hash -r 2>/dev/null || true
+    fi
     OPENCLAW_BIN="$(resolve_openclaw_bin || true)"
 
     # PATH warning: installs can succeed while the user's login shell still lacks npm's global bin dir.
-    local npm_bin=""
-    npm_bin="$(npm_global_bin_dir || true)"
     if [[ "$INSTALL_METHOD" == "npm" ]]; then
         warn_shell_path_missing_dir "$npm_bin" "npm global bin dir"
     fi
@@ -2440,9 +2446,9 @@ main() {
 
     echo ""
     if [[ -n "$installed_version" ]]; then
-        ui_celebrate "🦞 OpenClaw installed successfully (${installed_version})!"
+        ui_celebrate "🦞 ${INSTALLER_PRODUCT} installed successfully (${installed_version})!"
     else
-        ui_celebrate "🦞 OpenClaw installed successfully!"
+        ui_celebrate "🦞 ${INSTALLER_PRODUCT} installed successfully!"
     fi
     if [[ "$is_upgrade" == "true" ]]; then
         local update_messages=(
@@ -2494,7 +2500,7 @@ main() {
         ui_kv "Checkout" "$final_git_dir"
         ui_kv "Wrapper" "$HOME/.local/bin/openclaw"
         ui_kv "Update command" "openclaw update --restart"
-        ui_kv "Switch to npm" "curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --install-method npm"
+        ui_kv "Switch to npm" "curl -fsSL ${INSTALLER_SCRIPT_URL} | bash -s -- --install-method npm"
     elif [[ "$is_upgrade" == "true" ]]; then
         ui_info "Upgrade complete"
         if [[ -r /dev/tty && -w /dev/tty ]]; then

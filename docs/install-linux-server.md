@@ -18,6 +18,10 @@ curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/in
 curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash -s -- --no-onboard
 ```
 
+**Если установка пишет, что `openclaw` не в PATH:** в этой же сессии скрипт уже добавляет каталог npm в PATH; откройте новый терминал или выполните `hash -r`, затем `openclaw onboard --install-daemon`.
+
+**Если при установке build tools появляется ошибка про lock dpkg** (`Could not get lock /var/lib/dpkg/lock-frontend`, процесс `unattended-upgr`): в фоне идёт обновление пакетов. Дождитесь окончания (например, `sudo lsof /var/lib/dpkg/lock-frontend` покажет процесс) или отложите установку и запустите скрипт позже.
+
 ---
 
 ## Требования
