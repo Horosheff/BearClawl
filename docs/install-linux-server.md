@@ -10,6 +10,14 @@
 curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash
 ```
 
+**Важно:** в начале должна появиться строка **«BearClaw Installer»** и под ней **«Repo: github.com/Horosheff/BearClawl»**. Если видите «OpenClaw Installer» и ставится OpenClaw v0.1.6 — скрипт отдаётся из кэша. Тогда выполните (без кэша):
+
+```bash
+curl -fsSL -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh' | bash
+```
+
+Либо скачайте скрипт и запустите вручную: `curl -fsSL -o install-bearclaw.sh '...' ; bash install-bearclaw.sh`
+
 Скрипт при необходимости установит Node.js 22+, установит BearClaw через npm и предложит запустить онбординг (`openclaw onboard --install-daemon`). Дальше настройте Telegram-бота и запустите шлюз (вручную или как systemd-сервис — см. ниже).
 
 Без онбординга (только установка):

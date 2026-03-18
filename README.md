@@ -21,7 +21,7 @@
 curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash
 ```
 
-Скрипт при необходимости поставит Node.js 22+, установит BearClaw (npm или git) и запустит онбординг. Управление — через Telegram.
+Скрипт при необходимости поставит Node.js 22+, установит BearClaw (npm или git) и запустит онбординг. В начале должно быть **«BearClaw Installer»** и **«Repo: github.com/Horosheff/BearClawl»**. Если видите «OpenClaw» — попробуйте без кэша: `curl -fsSL -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh' | bash`. Управление — через Telegram.
 
 ### Вручную
 

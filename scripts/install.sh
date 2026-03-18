@@ -1159,7 +1159,7 @@ choose_install_method_interactive() {
 
     if [[ -n "$GUM" ]] && gum_is_tty; then
         local header selection
-        header="Detected OpenClaw checkout in: ${detected_checkout}
+        header="Detected ${INSTALLER_PRODUCT} checkout in: ${detected_checkout}
 Choose install method"
         selection="$("$GUM" choose \
             --header "$header" \
@@ -1182,7 +1182,7 @@ Choose install method"
 
     local choice=""
     choice="$(prompt_choice "$(cat <<EOF
-${WARN}→${NC} Detected a OpenClaw source checkout in: ${INFO}${detected_checkout}${NC}
+${WARN}→${NC} Detected ${INSTALLER_PRODUCT} source checkout in: ${INFO}${detected_checkout}${NC}
 Choose install method:
   1) Update this checkout (git) and use it
   2) Install global via npm (migrate away from git)
@@ -1655,7 +1655,7 @@ ensure_openclaw_bin_link() {
 # Check for existing OpenClaw installation
 check_existing_openclaw() {
     if [[ -n "$(type -P openclaw 2>/dev/null || true)" ]]; then
-        ui_info "Existing OpenClaw installation detected, upgrading"
+        ui_info "Existing ${INSTALLER_PRODUCT}/openclaw installation detected, upgrading"
         return 0
     fi
     return 1
@@ -2200,8 +2200,12 @@ resolve_openclaw_version() {
     if [[ -z "$version" ]]; then
         local npm_root=""
         npm_root=$(npm root -g 2>/dev/null || true)
-        if [[ -n "$npm_root" && -f "$npm_root/openclaw/package.json" ]]; then
-            version=$(node -e "console.log(require('${npm_root}/openclaw/package.json').version)" 2>/dev/null || true)
+        if [[ -n "$npm_root" ]]; then
+            if [[ -f "$npm_root/${INSTALLER_PKG_NAME}/package.json" ]]; then
+                version=$(node -e "console.log(require('${npm_root}/${INSTALLER_PKG_NAME}/package.json').version)" 2>/dev/null || true)
+            elif [[ -f "$npm_root/openclaw/package.json" ]]; then
+                version=$(node -e "console.log(require('${npm_root}/openclaw/package.json').version)" 2>/dev/null || true)
+            fi
         fi
     fi
     echo "$version"
@@ -2279,7 +2283,7 @@ verify_installation() {
         return 1
     fi
 
-    run_quiet_step "Checking OpenClaw version" "$claw" --version || return 1
+    run_quiet_step "Checking ${INSTALLER_PRODUCT} version" "$claw" --version || return 1
 
     if is_gateway_daemon_loaded "$claw"; then
         run_quiet_step "Checking gateway service" "$claw" gateway status --deep || {
@@ -2303,6 +2307,9 @@ main() {
 
     bootstrap_gum_temp || true
     print_installer_banner
+    # Явная метка, чтобы отличить наш скрипт от кэшированной версии OpenClaw
+    echo -e "${MUTED}  Repo: github.com/Horosheff/BearClawl${NC}"
+    echo ""
     print_gum_status
     detect_os_or_die
 
@@ -2311,7 +2318,7 @@ main() {
 
     if [[ -z "$INSTALL_METHOD" && -n "$detected_checkout" ]]; then
         if ! is_promptable; then
-            ui_info "Found OpenClaw checkout but no TTY; defaulting to npm install"
+            ui_info "Found ${INSTALLER_PRODUCT} checkout but no TTY; defaulting to npm install"
             INSTALL_METHOD="npm"
         else
             local selected_method=""
