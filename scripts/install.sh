@@ -1,8 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
-# OpenClaw Installer for macOS and Linux
-# Usage: curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash
+# BearClaw Installer for macOS and Linux (на базе OpenClaw)
+# Usage: curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash
+
+# Репозиторий BearClaw: по умолчанию ставим bearclaw из npm / наш GitHub
+INSTALLER_PKG_NAME="${INSTALLER_PKG_NAME:-bearclaw}"
+INSTALLER_REPO_URL="${INSTALLER_REPO_URL:-https://github.com/Horosheff/BearClawl.git}"
+INSTALLER_GIT_SPEC="${INSTALLER_GIT_SPEC:-github:Horosheff/BearClawl#main}"
+INSTALLER_PRODUCT="${INSTALLER_PRODUCT:-BearClaw}"
+INSTALLER_SCRIPT_URL="${INSTALLER_SCRIPT_URL:-https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh}"
 
 BOLD='\033[1m'
 ACCENT='\033[38;2;255;77;77m'       # coral-bright  #ff4d4d
@@ -15,7 +22,7 @@ ERROR='\033[38;2;230;57;70m'        # coral-mid     #e63946
 MUTED='\033[38;2;90;100;128m'       # text-muted    #5a6480
 NC='\033[0m' # No Color
 
-DEFAULT_TAGLINE="All your chats, one OpenClaw."
+DEFAULT_TAGLINE="BearClaw — русский AI-агент (GigaChat, YandexGPT, Telegram)."
 NODE_DEFAULT_MAJOR=24
 NODE_MIN_MAJOR=22
 NODE_MIN_MINOR=16
@@ -262,7 +269,7 @@ detect_os_or_die() {
     if [[ "$OS" == "unknown" ]]; then
         ui_error "Unsupported operating system"
         echo "This installer supports macOS and Linux (including WSL)."
-        echo "For Windows, use: iwr -useb https://openclaw.ai/install.ps1 | iex"
+        echo "For Windows, use: iwr -useb ${INSTALLER_SCRIPT_URL%.sh}.ps1 | iex"
         exit 1
     fi
 
@@ -988,7 +995,7 @@ DRY_RUN=${OPENCLAW_DRY_RUN:-0}
 INSTALL_METHOD=${OPENCLAW_INSTALL_METHOD:-}
 OPENCLAW_VERSION=${OPENCLAW_VERSION:-latest}
 USE_BETA=${OPENCLAW_BETA:-0}
-GIT_DIR_DEFAULT="${HOME}/openclaw"
+GIT_DIR_DEFAULT="${HOME}/BearClawl"
 GIT_DIR=${OPENCLAW_GIT_DIR:-$GIT_DIR_DEFAULT}
 GIT_UPDATE=${OPENCLAW_GIT_UPDATE:-1}
 SHARP_IGNORE_GLOBAL_LIBVIPS="${SHARP_IGNORE_GLOBAL_LIBVIPS:-1}"
@@ -1002,10 +1009,10 @@ HELP=0
 
 print_usage() {
     cat <<EOF
-OpenClaw installer (macOS + Linux)
+${INSTALLER_PRODUCT} installer (macOS + Linux)
 
 Usage:
-  curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- [options]
+  curl -fsSL ${INSTALLER_SCRIPT_URL} | bash -s -- [options]
 
 Options:
   --install-method, --method npm|git   Install via npm (default) or from a git checkout
@@ -1013,7 +1020,7 @@ Options:
   --git, --github                     Shortcut for --install-method git
   --version <version|dist-tag|spec>    npm install target (default: latest; use "main" for GitHub main)
   --beta                               Use beta if available, else latest
-  --git-dir, --dir <path>             Checkout directory (default: ~/openclaw)
+  --git-dir, --dir <path>             Checkout directory (default: ~/BearClawl)
   --no-git-update                      Skip git pull for existing checkout
   --no-onboard                          Skip onboarding (non-interactive)
   --no-prompt                           Disable prompts (required in CI/automation)
@@ -1037,11 +1044,11 @@ Environment variables:
   SHARP_IGNORE_GLOBAL_LIBVIPS=0|1    Default: 1 (avoid sharp building against global libvips)
 
 Examples:
-  curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash
-  curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard
-  curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard --verify
-  curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --version main
-  curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --install-method git --no-onboard
+  curl -fsSL ${INSTALLER_SCRIPT_URL} | bash
+  curl -fsSL ${INSTALLER_SCRIPT_URL} | bash -s -- --no-onboard
+  curl -fsSL ${INSTALLER_SCRIPT_URL} | bash -s -- --no-onboard --verify
+  curl -fsSL ${INSTALLER_SCRIPT_URL} | bash -s -- --version main
+  curl -fsSL ${INSTALLER_SCRIPT_URL} | bash -s -- --install-method git --no-onboard
 EOF
 }
 
@@ -1205,11 +1212,15 @@ detect_openclaw_checkout() {
     if [[ ! -f "$dir/pnpm-workspace.yaml" ]]; then
         return 1
     fi
-    if ! grep -q '"name"[[:space:]]*:[[:space:]]*"openclaw"' "$dir/package.json" 2>/dev/null; then
-        return 1
+    if grep -q '"name"[[:space:]]*:[[:space:]]*"openclaw"' "$dir/package.json" 2>/dev/null; then
+        echo "$dir"
+        return 0
     fi
-    echo "$dir"
-    return 0
+    if grep -q '"name"[[:space:]]*:[[:space:]]*"bearclaw"' "$dir/package.json" 2>/dev/null; then
+        echo "$dir"
+        return 0
+    fi
+    return 1
 }
 
 # Check for Homebrew on macOS
@@ -1615,7 +1626,17 @@ fix_npm_permissions() {
 ensure_openclaw_bin_link() {
     local npm_root=""
     npm_root="$(npm root -g 2>/dev/null || true)"
-    if [[ -z "$npm_root" || ! -d "$npm_root/openclaw" ]]; then
+    if [[ -z "$npm_root" ]]; then
+        return 1
+    fi
+    local pkg_dir="$npm_root/${INSTALLER_PKG_NAME}"
+    local bin_src=""
+    if [[ -f "$pkg_dir/openclaw.mjs" ]]; then
+        bin_src="$pkg_dir/openclaw.mjs"
+    elif [[ -d "$npm_root/openclaw" && -f "$npm_root/openclaw/dist/entry.js" ]]; then
+        bin_src="$npm_root/openclaw/dist/entry.js"
+    fi
+    if [[ -z "$bin_src" || ! -f "$bin_src" ]]; then
         return 1
     fi
     local npm_bin=""
@@ -1625,7 +1646,7 @@ ensure_openclaw_bin_link() {
     fi
     mkdir -p "$npm_bin"
     if [[ ! -x "${npm_bin}/openclaw" ]]; then
-        ln -sf "$npm_root/openclaw/dist/entry.js" "${npm_bin}/openclaw"
+        ln -sf "$bin_src" "${npm_bin}/openclaw"
         ui_info "Created openclaw bin link at ${npm_bin}/openclaw"
     fi
     return 0
@@ -1906,12 +1927,12 @@ resolve_openclaw_bin() {
 
 install_openclaw_from_git() {
     local repo_dir="$1"
-    local repo_url="https://github.com/openclaw/openclaw.git"
+    local repo_url="${INSTALLER_REPO_URL}"
 
     if [[ -d "$repo_dir/.git" ]]; then
-        ui_info "Installing OpenClaw from git checkout: ${repo_dir}"
+        ui_info "Installing ${INSTALLER_PRODUCT} from git checkout: ${repo_dir}"
     else
-        ui_info "Installing OpenClaw from GitHub (${repo_url})"
+        ui_info "Installing ${INSTALLER_PRODUCT} from GitHub (${repo_url})"
     fi
 
     if ! check_git; then
@@ -1922,7 +1943,7 @@ install_openclaw_from_git() {
     ensure_pnpm_binary_for_scripts
 
     if [[ ! -d "$repo_dir" ]]; then
-        run_quiet_step "Cloning OpenClaw" git clone "$repo_url" "$repo_dir"
+        run_quiet_step "Cloning ${INSTALLER_PRODUCT}" git clone "$repo_url" "$repo_dir"
     fi
 
     if [[ "$GIT_UPDATE" == "1" ]]; then
@@ -1937,10 +1958,10 @@ install_openclaw_from_git() {
 
     SHARP_IGNORE_GLOBAL_LIBVIPS="$SHARP_IGNORE_GLOBAL_LIBVIPS" run_quiet_step "Installing dependencies" run_pnpm -C "$repo_dir" install
 
-    if ! run_quiet_step "Building UI" run_pnpm -C "$repo_dir" ui:build; then
-        ui_warn "UI build failed; continuing (CLI may still work)"
+    if ! run_quiet_step "Building UI" run_pnpm -C "$repo_dir" ui:build 2>/dev/null; then
+        ui_warn "UI build skipped or failed; continuing (BearClaw: control via Telegram only)"
     fi
-    run_quiet_step "Building OpenClaw" run_pnpm -C "$repo_dir" build
+    run_quiet_step "Building ${INSTALLER_PRODUCT}" run_pnpm -C "$repo_dir" build
 
     ensure_user_local_bin_on_path
 
@@ -1950,14 +1971,14 @@ set -euo pipefail
 exec node "${repo_dir}/dist/entry.js" "\$@"
 EOF
     chmod +x "$HOME/.local/bin/openclaw"
-    ui_success "OpenClaw wrapper installed to \$HOME/.local/bin/openclaw"
+    ui_success "${INSTALLER_PRODUCT} wrapper installed to \$HOME/.local/bin/openclaw"
     ui_info "This checkout uses pnpm — run pnpm install (or corepack pnpm install) for deps"
 }
 
 # Install OpenClaw
 resolve_beta_version() {
     local beta=""
-    beta="$(npm view openclaw dist-tags.beta 2>/dev/null || true)"
+    beta="$(npm view "${INSTALLER_PKG_NAME}" dist-tags.beta 2>/dev/null || true)"
     if [[ -z "$beta" || "$beta" == "undefined" || "$beta" == "null" ]]; then
         return 1
     fi
@@ -1987,7 +2008,7 @@ resolve_package_install_spec() {
     local package_name="$1"
     local value="$2"
     if [[ "${value,,}" == "main" ]]; then
-        echo "github:openclaw/openclaw#main"
+        echo "${INSTALLER_GIT_SPEC}"
         return 0
     fi
     if is_explicit_package_install_spec "$value"; then
@@ -2002,14 +2023,13 @@ resolve_package_install_spec() {
 }
 
 install_openclaw() {
-    local package_name="openclaw"
+    local package_name="${INSTALLER_PKG_NAME}"
     if [[ "$USE_BETA" == "1" ]]; then
         local beta_version=""
         beta_version="$(resolve_beta_version || true)"
         if [[ -n "$beta_version" ]]; then
             OPENCLAW_VERSION="$beta_version"
             ui_info "Beta tag detected (${beta_version})"
-            package_name="openclaw"
         else
             OPENCLAW_VERSION="latest"
             ui_info "No beta tag found; using latest"

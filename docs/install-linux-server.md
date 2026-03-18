@@ -1,0 +1,214 @@
+# Установка BearClaw на Linux-сервер
+
+Инструкция по установке и запуску [BearClaw](https://github.com/Horosheff/BearClawl) на сервере с Linux. Управление — только через Telegram, веб-дашборд отключён.
+
+## Установка одной командой
+
+На сервере с Linux (или WSL) достаточно выполнить:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash
+```
+
+Скрипт при необходимости установит Node.js 22+, установит BearClaw через npm и предложит запустить онбординг (`openclaw onboard --install-daemon`). Дальше настройте Telegram-бота и запустите шлюз (вручную или как systemd-сервис — см. ниже).
+
+Без онбординга (только установка):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash -s -- --no-onboard
+```
+
+---
+
+## Требования
+
+- **ОС:** Linux (Ubuntu 22.04+, Debian 12+, или другой дистрибутив с Node.js 22+).
+- **Node.js:** версия **22** или выше.
+- **Доступ в интернет** с сервера (для API GigaChat, YandexGPT, Telegram и т.д.).
+
+---
+
+## 1. Установка Node.js 22
+
+### Ubuntu / Debian
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+node -v   # должно быть v22.x.x
+```
+
+### Через nvm (без sudo)
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source ~/.bashrc
+nvm install 22
+nvm use 22
+node -v
+```
+
+---
+
+## 2. Установка BearClaw
+
+### Вариант А: из npm (рекомендуется)
+
+```bash
+sudo npm install -g bearclaw@latest
+# или
+sudo pnpm add -g bearclaw@latest
+
+openclaw --version
+```
+
+### Вариант Б: из репозитория (сборка из исходников)
+
+```bash
+sudo npm install -g pnpm
+git clone https://github.com/Horosheff/BearClawl.git
+cd BearClawl
+pnpm install
+pnpm build
+
+# Запуск локальной сборки (из каталога репозитория)
+node dist/openclaw.mjs --version
+```
+
+Дальше в командах можно использовать либо глобальный `openclaw` (вариант А), либо `node dist/openclaw.mjs` из каталога BearClawl (вариант Б).
+
+---
+
+## 3. Первичная настройка (онбординг)
+
+Один раз запустите мастер настройки. Он создаст конфиг, рабочий каталог и при желании установит шлюз как сервис.
+
+```bash
+openclaw onboard --install-daemon
+```
+
+- Пройдите шаги: укажите каталог конфигурации (можно оставить по умолчанию `~/.openclaw`).
+- **Telegram:** создайте бота в [@BotFather](https://t.me/BotFather), получите токен и введите его при настройке канала Telegram.
+- При запросе установки демона ответьте «да», если хотите, чтобы шлюз работал как systemd-сервис.
+
+После онбординга конфиг будет в `~/.openclaw/openclaw.json` (или в выбранном вами пути).
+
+---
+
+## 4. Переменные окружения (модели и TTS)
+
+Создайте файл с переменными (например, `~/.openclaw/env` или используйте systemd `EnvironmentFile`). Пример для GigaChat и YandexGPT:
+
+```bash
+# GigaChat (Сбер)
+export GIGACHAT_ACCESS_TOKEN="ваш_токен"
+# или для OAuth: GIGACHAT_CLIENT_ID и GIGACHAT_CLIENT_SECRET
+
+# YandexGPT и SpeechKit (Яндекс Облако)
+export YANDEX_API_KEY="ваш_api_ключ"
+export YANDEX_FOLDER_ID="ваш_folder_id"
+```
+
+Перед запуском шлюза выполните: `source ~/.openclaw/env` (или настройте подстановку в systemd, см. ниже).
+
+---
+
+## 5. Запуск шлюза
+
+### Одним запуском (для проверки)
+
+Прослушивание только localhost (по умолчанию):
+
+```bash
+openclaw gateway --port 18789 --verbose
+```
+
+Чтобы шлюз был доступен снаружи сервера (например, для Telegram webhook):
+
+```bash
+openclaw gateway --port 18789 --bind lan --verbose
+```
+
+В конфиге можно задать `gateway.bind: "lan"` и порт, тогда флаги не обязательны.
+
+### Как systemd-сервис (постоянная работа)
+
+Если при онбординге вы выбрали `--install-daemon`, сервис уже создан. Иначе создайте unit вручную.
+
+Файл сервиса (пример): `/etc/systemd/system/bearclaw-gateway.service`
+
+```ini
+[Unit]
+Description=BearClaw gateway
+After=network.target
+
+[Service]
+Type=simple
+User=ВАШ_ПОЛЬЗОВАТЕЛЬ
+WorkingDirectory=/home/ВАШ_ПОЛЬЗОВАТЕЛЬ
+EnvironmentFile=/home/ВАШ_ПОЛЬЗОВАТЕЛЬ/.openclaw/env
+ExecStart=/usr/bin/openclaw gateway --port 18789 --bind lan
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Подставьте своего пользователя и путь к `EnvironmentFile`. Если ставили из репозитория, в `ExecStart` укажите полный путь к CLI, например:
+
+```ini
+ExecStart=/home/ВАШ_ПОЛЬЗОВАТЕЛЬ/BearClawl/node dist/openclaw.mjs gateway --port 18789 --bind lan
+```
+
+Затем:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable bearclaw-gateway
+sudo systemctl start bearclaw-gateway
+sudo systemctl status bearclaw-gateway
+```
+
+Логи: `journalctl -u bearclaw-gateway -f`.
+
+---
+
+## 6. Telegram: webhook или polling
+
+- **Webhook:** нужен HTTPS и доступный с интернета адрес. В конфиге укажите `gateway.bind: "lan"`, откройте порт (например 18789) или настройте reverse proxy (nginx) с SSL и укажите в настройках канала Telegram URL вида `https://ваш-домен/путь`.
+- **Polling:** если с сервера есть доступ в интернет, но снаружи порт не открыт, можно использовать long polling (настраивается в канале Telegram в конфиге).
+
+Подробности по каналу Telegram и webhook — в [документации OpenClaw](https://docs.openclaw.ai) и в мастере `openclaw onboard`.
+
+---
+
+## 7. Полезные команды
+
+| Команда | Описание |
+|--------|----------|
+| `openclaw status` | Статус шлюза и окружения |
+| `openclaw doctor` | Диагностика и быстрые исправления |
+| `openclaw gateway restart` | Перезапуск шлюза (если установлен как сервис) |
+| `openclaw config get gateway.port` | Показать порт шлюза из конфига |
+
+Управление — только через Telegram; веб-дашборд в BearClaw отключён.
+
+---
+
+## 8. Docker (альтернатива)
+
+Образы публикуются в GitHub Container Registry (lowercase):
+
+```bash
+docker pull ghcr.io/horosheff/bearclawl:main
+docker run -d --name bearclaw \
+  -p 18789:18789 \
+  -e YANDEX_API_KEY="..." \
+  -e YANDEX_FOLDER_ID="..." \
+  -v bearclaw-data:/root/.openclaw \
+  ghcr.io/horosheff/bearclawl:main \
+  node openclaw.mjs gateway --port 18789 --bind lan
+```
+
+Конфиг и данные храните в volume `bearclaw-data` или монтируйте каталог с `openclaw.json`.

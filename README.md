@@ -15,6 +15,16 @@
 
 ## Установка
 
+### Одна команда (Linux / macOS / WSL)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash
+```
+
+Скрипт при необходимости поставит Node.js 22+, установит BearClaw (npm или git) и запустит онбординг. Управление — через Telegram.
+
+### Вручную
+
 Требуется **Node.js ≥22**.
 
 ```bash
@@ -25,6 +35,8 @@ openclaw onboard --install-daemon
 ```
 
 Мастер настройки (`openclaw onboard`) проведёт через установку шлюза, рабочего пространства, канала Telegram и скиллов.
+
+**Установка на Linux-сервер:** пошаговая инструкция (Node.js, systemd, Docker) — [docs/install-linux-server.md](docs/install-linux-server.md).
 
 ## Быстрый старт
 
