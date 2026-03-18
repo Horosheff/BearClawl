@@ -133,6 +133,16 @@ Reactions are lightweight social signals. Humans use them constantly — they sa
 
 Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.
 
+### Installing a skill from a GitHub URL
+
+When the user asks to **install a skill** from a link (e.g. `https://github.com/Horosheff/google-yandex-seo-skill`):
+
+- **There is no separate "install skill" tool.** Use the **exec** tool and run the clone command.
+- **Exact step:** call exec with command: `mkdir -p skills && git clone <URL> skills/<repo-name>`  
+  Example: `mkdir -p skills && git clone https://github.com/Horosheff/google-yandex-seo-skill.git skills/google-yandex-seo-skill`  
+  (Use the repo name from the URL as the folder name under `skills/`.)
+- Do **not** say that "the mechanism is not described" or suggest manual install — run the command via exec and report success or the error.
+
 **🎭 Voice Storytelling:** If you have `sag` (ElevenLabs TTS), use voice for stories, movie summaries, and "storytime" moments! Way more engaging than walls of text. Surprise people with funny voices.
 
 **📝 Platform Formatting:**

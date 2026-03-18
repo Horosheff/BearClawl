@@ -205,20 +205,50 @@ sudo systemctl status bearclaw-gateway
 
 ---
 
-## 7. Полезные команды
+## 7. Установка и рестарт (шпаргалка)
+
+**Установка с нуля (одна команда):**
+```bash
+curl -fsSL -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash
+```
+Дальше при необходимости: `export PATH="$HOME/.local/bin:$PATH"` и `openclaw onboard --install-daemon`.
+
+**Обновление из git и рестарт** (если уже ставили из репозитория, например в `~/BearClawl`):
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+cd ~/BearClawl && git pull && pnpm install && pnpm build
+systemctl --user restart openclaw-gateway
+```
+Если шлюз запускали не как systemd, а вручную — просто заново запустите `openclaw gateway --port 18789 --bind lan` (предварительно остановив старый процесс: `openclaw gateway stop` или Ctrl+C).
+
+**Только рестарт шлюза:**
+```bash
+systemctl --user restart openclaw-gateway
+```
+или
+```bash
+openclaw gateway restart
+```
+(второй вариант сработает, если при онбординге был установлен сервис через `openclaw onboard --install-daemon`).
+
+---
+
+## 8. Полезные команды
 
 | Команда | Описание |
 |--------|----------|
 | `openclaw status` | Статус шлюза и окружения |
 | `openclaw doctor` | Диагностика и быстрые исправления |
 | `openclaw gateway restart` | Перезапуск шлюза (если установлен как сервис) |
+| `openclaw gateway stop` | Остановить шлюз (локальный процесс) |
 | `openclaw config get gateway.port` | Показать порт шлюза из конфига |
+| `journalctl --user -u openclaw-gateway -f` | Логи шлюза в реальном времени |
 
 Управление — только через Telegram; веб-дашборд в BearClaw отключён.
 
 ---
 
-## 8. Инструменты кодинга (полный набор)
+## 9. Инструменты кодинга (полный набор)
 
 Чтобы агент мог полноценно кодить (патчи, планировщик, генерация изображений):
 
@@ -234,7 +264,7 @@ sudo systemctl status bearclaw-gateway
 
 ---
 
-## 9. Первый контакт в Telegram: «кем быть» и обращение по имени
+## 10. Первый контакт в Telegram: «кем быть» и обращение по имени
 
 При первом сообщении в Telegram бот должен спросить, **кем он должен быть** (имя/роль), и потом **обращаться к тебе по имени** (из префикса сообщения).
 
@@ -247,7 +277,7 @@ sudo systemctl status bearclaw-gateway
 
 ---
 
-## 10. Docker (альтернатива)
+## 11. Docker (альтернатива)
 
 Образы публикуются в GitHub Container Registry (lowercase):
 
@@ -266,7 +296,7 @@ docker run -d --name bearclaw \
 
 ---
 
-## 11. YandexGPT и типичные проблемы
+## 12. YandexGPT и типичные проблемы
 
 Если бот отвечает «An unknown error occurred», скилл не находится по пути или хочется сравнить настройку с другими провайдерами (например Anthropic) — см. **[docs/troubleshooting-yandexgpt.md](troubleshooting-yandexgpt.md)**. Там разобраны:
 

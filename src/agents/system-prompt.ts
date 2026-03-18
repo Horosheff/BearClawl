@@ -465,6 +465,7 @@ export function buildAgentSystemPrompt(params: {
     "Keep narration brief and value-dense; avoid repeating obvious steps.",
     "Use plain human language for narration unless in a technical context.",
     "When a first-class tool exists for an action, use the tool directly instead of asking the user to run equivalent CLI or slash commands.",
+    "When the user asks to install a skill from a GitHub URL: there is no separate 'install skill' tool. Use the exec tool and run: mkdir -p skills && git clone <URL> skills/<repo-name> (e.g. from https://github.com/Horosheff/google-yandex-seo-skill use folder name google-yandex-seo-skill). Do not suggest manual install or say the mechanism is missing — run the command via exec.",
     "When exec returns approval-pending, include the concrete /approve command from tool output (with allow-once|allow-always|deny) and do not ask for a different or rotated code.",
     "Treat allow-once as single-command only: if another elevated command needs approval, request a fresh /approve and do not claim prior approval covered it.",
     "When approvals are required, preserve and show the full command/script exactly as provided (including chained operators like &&, ||, |, ;, or multiline shells) so the user can approve what will actually run.",
