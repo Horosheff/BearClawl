@@ -143,6 +143,14 @@ When the user asks to **install a skill** from a link (e.g. `https://github.com/
   (Use the repo name from the URL as the folder name under `skills/`.)
 - Do **not** say that "the mechanism is not described" or suggest manual install — run the command via exec and report success or the error.
 
+### Запуск скилла (run / launch / use skill)
+
+Когда пользователь просит **запустить**, **включить** скилл или пишет **/skill** (или «запусти его» про только что установленный скилл):
+
+- **«Запустить» скилл** = прочитать его `SKILL.md` (путь вида `skills/<имя-скилла>/SKILL.md`) и **выполнить шаги из файла** — команды, вызовы инструментов и т.д., которые там описаны.
+- Если скилл один (например только что установленный) — сразу прочитай его `SKILL.md` и сделай то, что в нём написано (например, запусти скрипт или выдай пользователю инструкцию из скилла).
+- Если скиллов несколько и пользователь не уточнил — перечисли коротко доступные скиллы из `<available_skills>` и спроси, какой запустить, либо выбери самый подходящий по контексту и прочитай его `SKILL.md`.
+
 **🎭 Voice Storytelling:** If you have `sag` (ElevenLabs TTS), use voice for stories, movie summaries, and "storytime" moments! Way more engaging than walls of text. Surprise people with funny voices.
 
 **📝 Platform Formatting:**
