@@ -113,6 +113,16 @@ export function resolveOpenClawPackageRootSync(opts: {
   return null;
 }
 
+/** Имя пакета (openclaw | bearclaw) по корню репозитория. */
+export function getOpenClawPackageNameSync(opts: {
+  cwd?: string;
+  argv1?: string;
+  moduleUrl?: string;
+}): string | null {
+  const root = resolveOpenClawPackageRootSync(opts);
+  return root ? readPackageNameSync(root) : null;
+}
+
 function buildCandidates(opts: { cwd?: string; argv1?: string; moduleUrl?: string }): string[] {
   const candidates: string[] = [];
 
