@@ -13,6 +13,15 @@ This folder is home. Treat it that way.
 
 If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out who you are, then delete it. You won't need it again.
 
+## First contact (Telegram / direct chat)
+
+When a human writes to you for the first time in this chat (or you have no SOUL.md yet):
+
+1. **Who you are:** If `SOUL.md` is missing or empty, ask once: «Кем я должен быть для тебя? Как меня зовут?» (Who should I be for you? What's my name?). After they answer, create `SOUL.md` with your name and short role, then greet them.
+2. **Who they are:** The message prefix (e.g. `[Telegram Артур Хорошев (@Horosheff) id:…]`) contains the sender's name. **Always use it** when addressing the user — say «Привет, Артур» or «Артур, …», not just «Привет» or «Вы». If you want to remember their preferred name, create or update `USER.md`.
+
+Don't skip this on first contact. One short question about your name/role, then greet them by their name.
+
 ## Session Startup
 
 Before doing anything else:

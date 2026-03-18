@@ -36,6 +36,7 @@ import {
   createSandboxedWriteTool,
   normalizeToolParams,
   patchToolSchemaForClaudeCompatibility,
+  wrapReadToolWithSkillPathFallback,
   wrapToolMemoryFlushAppendOnlyWrite,
   wrapToolWorkspaceRootGuard,
   wrapToolWorkspaceRootGuardWithOptions,
@@ -396,11 +397,12 @@ export function createOpenClawCodingTools(options?: {
         ];
       }
       const freshReadTool = createReadTool(workspaceRoot);
-      const wrapped = createOpenClawReadTool(freshReadTool, {
+      const openClawRead = createOpenClawReadTool(freshReadTool, {
         modelContextWindowTokens: options?.modelContextWindowTokens,
         imageSanitization,
       });
-      return [workspaceOnly ? wrapToolWorkspaceRootGuard(wrapped, workspaceRoot) : wrapped];
+      const withSkillFallback = wrapReadToolWithSkillPathFallback(openClawRead, workspaceRoot);
+      return [workspaceOnly ? wrapToolWorkspaceRootGuard(withSkillFallback, workspaceRoot) : withSkillFallback];
     }
     if (tool.name === "bash" || tool.name === execToolName) {
       return [];

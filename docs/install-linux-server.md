@@ -234,7 +234,20 @@ sudo systemctl status bearclaw-gateway
 
 ---
 
-## 9. Docker (альтернатива)
+## 9. Первый контакт в Telegram: «кем быть» и обращение по имени
+
+При первом сообщении в Telegram бот должен спросить, **кем он должен быть** (имя/роль), и потом **обращаться к тебе по имени** (из префикса сообщения).
+
+Это задаётся шаблоном агента. Если бот уже был настроен раньше и такого поведения нет:
+
+1. Открой файл AGENTS.md в рабочем каталоге агента (например `~/.openclaw/agents/main/workspace/AGENTS.md` или путь из `agents.defaults.workspace`).
+2. Добавь секцию **«First contact (Telegram / direct chat)»** как в `docs/reference/templates/AGENTS.md` в репозитории — там описаны один вопрос «Кем я должен быть? Как меня зовут?» и правило обращаться к пользователю по имени из префикса сообщения.
+
+При новой установке и создании workspace эта секция подставляется из шаблона автоматически.
+
+---
+
+## 10. Docker (альтернатива)
 
 Образы публикуются в GitHub Container Registry (lowercase):
 
@@ -250,3 +263,13 @@ docker run -d --name bearclaw \
 ```
 
 Конфиг и данные храните в volume `bearclaw-data` или монтируйте каталог с `openclaw.json`.
+
+---
+
+## 11. YandexGPT и типичные проблемы
+
+Если бот отвечает «An unknown error occurred», скилл не находится по пути или хочется сравнить настройку с другими провайдерами (например Anthropic) — см. **[docs/troubleshooting-yandexgpt.md](troubleshooting-yandexgpt.md)**. Там разобраны:
+
+- один и тот же пайплайн для всех провайдеров (Anthropic, YandexGPT и т.д.);
+- почему приходит «unknown error» и что смотреть в логах;
+- правильный путь к скиллам (`workspace/skills/<имя>/SKILL.md`) и предупреждения про `cron` / `image` / `image_generate`.

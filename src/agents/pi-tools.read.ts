@@ -23,7 +23,7 @@ import {
   wrapToolParamNormalization,
 } from "./pi-tools.params.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
-import { assertSandboxPath } from "./sandbox-paths.js";
+import { assertSandboxPath, resolveSandboxInputPath } from "./sandbox-paths.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import { sanitizeToolResultImages } from "./tool-images.js";
 
@@ -634,6 +634,58 @@ export function createHostWorkspaceEditTool(root: string, options?: { workspaceO
   }) as unknown as AnyAgentTool;
   const withRecovery = wrapHostEditToolWithPostWriteRecovery(base, root);
   return wrapToolParamNormalization(withRecovery, CLAUDE_PARAM_GROUPS.edit);
+}
+
+/**
+ * If the requested path looks like .../workspace/NAME/SKILL.md (missing "skills" segment),
+ * returns .../workspace/skills/NAME/SKILL.md so the agent can find skill files when it
+ * guesses the path without "skills/".
+ */
+function skillMdFallbackPath(absolutePath: string): string | null {
+  const normalized = absolutePath.replace(/\\/g, "/");
+  const match = normalized.match(/^(.*\/workspace)\/([^/]+)\/SKILL\.md$/i);
+  if (!match || match[2].toLowerCase() === "skills") {
+    return null;
+  }
+  return `${match[1]}/skills/${match[2]}/SKILL.md`;
+}
+
+/**
+ * Wraps the read tool so that when the path looks like workspace/NAME/SKILL.md (no "skills")
+ * and the file is missing (ENOENT), we retry with workspace/skills/NAME/SKILL.md.
+ */
+export function wrapReadToolWithSkillPathFallback(
+  tool: AnyAgentTool,
+  root: string,
+): AnyAgentTool {
+  return {
+    ...tool,
+    execute: async (toolCallId, params, signal, onUpdate) => {
+      const normalized = normalizeToolParams(params);
+      const record =
+        normalized ??
+        (params && typeof params === "object" ? (params as Record<string, unknown>) : undefined);
+      const rawPath = typeof record?.path === "string" ? record.path.trim() : "";
+      const resolved = resolveSandboxInputPath(rawPath, root);
+      const fallback = skillMdFallbackPath(resolved);
+
+      try {
+        return await tool.execute(toolCallId, normalized ?? params, signal, onUpdate);
+      } catch (err) {
+        const code = (err as NodeJS.ErrnoException)?.code;
+        if (fallback && code === "ENOENT") {
+          try {
+            await fs.access(fallback);
+            const retryArgs = { ...record, path: fallback } as Record<string, unknown>;
+            return await tool.execute(toolCallId, retryArgs, signal, onUpdate);
+          } catch {
+            // Fallback path also missing; rethrow original error.
+          }
+        }
+        throw err;
+      }
+    },
+  };
 }
 
 export function createOpenClawReadTool(

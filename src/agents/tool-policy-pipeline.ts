@@ -1,6 +1,9 @@
 import { filterToolsByPolicy } from "./pi-tools.policy.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import { isKnownCoreToolId } from "./tool-catalog.js";
+
+/** Core tools that are optional (require extra config); skip noisy allowlist warning when only these are missing. */
+const OPTIONAL_CORE_TOOL_IDS = new Set(["cron", "image", "image_generate"]);
 import {
   buildPluginToolGroups,
   expandPolicyWithPluginGroups,
@@ -91,19 +94,23 @@ export function applyToolPolicyPipeline(params: {
     if (step.stripPluginOnlyAllowlist) {
       const resolved = stripPluginOnlyAllowlist(policy, pluginGroups, coreToolNames);
       if (resolved.unknownAllowlist.length > 0) {
-        const entries = resolved.unknownAllowlist.join(", ");
-        const gatedCoreEntries = resolved.unknownAllowlist.filter((entry) =>
-          isKnownCoreToolId(entry),
-        );
-        const otherEntries = resolved.unknownAllowlist.filter((entry) => !isKnownCoreToolId(entry));
-        const suffix = describeUnknownAllowlistSuffix({
-          strippedAllowlist: resolved.strippedAllowlist,
-          hasGatedCoreEntries: gatedCoreEntries.length > 0,
-          hasOtherEntries: otherEntries.length > 0,
-        });
-        params.warn(
-          `tools: ${step.label} allowlist contains unknown entries (${entries}). ${suffix}`,
-        );
+        const onlyOptional =
+          resolved.unknownAllowlist.every((entry) => OPTIONAL_CORE_TOOL_IDS.has(entry));
+        if (!onlyOptional) {
+          const entries = resolved.unknownAllowlist.join(", ");
+          const gatedCoreEntries = resolved.unknownAllowlist.filter((entry) =>
+            isKnownCoreToolId(entry),
+          );
+          const otherEntries = resolved.unknownAllowlist.filter((entry) => !isKnownCoreToolId(entry));
+          const suffix = describeUnknownAllowlistSuffix({
+            strippedAllowlist: resolved.strippedAllowlist,
+            hasGatedCoreEntries: gatedCoreEntries.length > 0,
+            hasOtherEntries: otherEntries.length > 0,
+          });
+          params.warn(
+            `tools: ${step.label} allowlist contains unknown entries (${entries}). ${suffix}`,
+          );
+        }
       }
       policy = resolved.policy;
     }
