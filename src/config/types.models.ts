@@ -57,6 +57,8 @@ export type ModelProviderConfig = {
   injectNumCtxForOpenAICompat?: boolean;
   headers?: Record<string, SecretInput>;
   authHeader?: boolean;
+  /** Yandex AI Studio / YandexGPT: ID каталога в Яндекс Облаке. */
+  folderId?: string;
   models: ModelDefinitionConfig[];
 };
 

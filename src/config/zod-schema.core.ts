@@ -235,6 +235,8 @@ export const ModelProviderSchema = z
     injectNumCtxForOpenAICompat: z.boolean().optional(),
     headers: z.record(z.string(), SecretInputSchema.register(sensitive)).optional(),
     authHeader: z.boolean().optional(),
+    /** Yandex AI Studio / YandexGPT: ID каталога в Яндекс Облаке (обязателен для моделей). */
+    folderId: z.string().min(1).optional(),
     models: z.array(ModelDefinitionSchema),
   })
   .strict();

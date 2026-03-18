@@ -437,6 +437,7 @@ export const FIELD_LABELS: Record<string, string> = {
   "models.providers.*.injectNumCtxForOpenAICompat": "Model Provider Inject num_ctx (OpenAI Compat)",
   "models.providers.*.headers": "Model Provider Headers",
   "models.providers.*.authHeader": "Model Provider Authorization Header",
+  "models.providers.*.folderId": "Model Provider Folder ID (Yandex)",
   "models.providers.*.models": "Model Provider Model List",
   "models.bedrockDiscovery": "Bedrock Model Discovery",
   "models.bedrockDiscovery.enabled": "Bedrock Discovery Enabled",
