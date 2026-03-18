@@ -26,7 +26,12 @@ curl -fsSL -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 'https://raw.githu
 curl -fsSL https://raw.githubusercontent.com/Horosheff/BearClawl/main/scripts/install.sh | bash -s -- --no-onboard
 ```
 
-**Если установка пишет, что `openclaw` не в PATH:** выполните `hash -r` и снова запустите онбординг: `openclaw onboard --install-daemon`. Либо укажите полный путь: `/usr/bin/openclaw onboard --install-daemon`.
+**Если установка пишет, что `openclaw` не в PATH:** в **этом же терминале** выполните (подставьте свой HOME при установке из git):
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+openclaw onboard --install-daemon
+```
+Для установки из npm обычно путь уже в PATH; при необходимости: `hash -r` или полный путь `/usr/bin/openclaw`.
 
 **Чтобы поставить именно сборку из этого репозитория** (а не пакет из npm): используйте установку из git — тогда будет наша версия и все изменения:
 ```bash

@@ -42,7 +42,8 @@ export async function resolveWorkspaceTemplateDir(opts?: {
       }
     }
 
-    cachedTemplateDir = candidates[0] ?? FALLBACK_TEMPLATE_DIR;
+    // Ни один каталог не найден — используем FALLBACK (относительно текущего модуля), не candidates[0].
+    cachedTemplateDir = FALLBACK_TEMPLATE_DIR;
     return cachedTemplateDir;
   })();
 

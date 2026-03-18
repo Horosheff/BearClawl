@@ -1843,6 +1843,8 @@ warn_shell_path_missing_dir() {
     echo "  This can make openclaw show as \"command not found\" in new terminals."
     echo "  Fix (zsh: ~/.zshrc, bash: ~/.bashrc):"
     echo "    export PATH=\"${dir}:\$PATH\""
+    echo "  For this terminal right now (copy-paste):"
+    echo -e "    ${INFO}export PATH=\"${dir}:\$PATH\"${NC}"
 }
 
 ensure_npm_global_bin_on_path() {
@@ -2516,6 +2518,9 @@ main() {
         ui_kv "Wrapper" "$HOME/.local/bin/openclaw"
         ui_kv "Update command" "openclaw update --restart"
         ui_kv "Switch to npm" "curl -fsSL ${INSTALLER_SCRIPT_URL} | bash -s -- --install-method npm"
+        echo ""
+        ui_info "In this terminal run first: export PATH=\"\$HOME/.local/bin:\$PATH\""
+        ui_info "Then: openclaw onboard --install-daemon"
     elif [[ "$is_upgrade" == "true" ]]; then
         ui_info "Upgrade complete"
         if [[ -r /dev/tty && -w /dev/tty ]]; then

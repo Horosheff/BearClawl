@@ -9,6 +9,8 @@ import type {
   ProviderPluginWizardSetup,
 } from "./types.js";
 
+export type ProviderApiKeyAuthExtra = { folderId?: string };
+
 type ProviderApiKeyAuthMethodOptions = {
   providerId: string;
   methodId: string;
@@ -19,6 +21,8 @@ type ProviderApiKeyAuthMethodOptions = {
   flagName: `--${string}`;
   envVar: string;
   promptMessage: string;
+  /** Если задано, после ввода API-ключа запрашивается Folder ID (для Yandex AI Studio и т.п.). */
+  promptFolderId?: { promptMessage: string };
   profileId?: string;
   profileIds?: string[];
   allowProfile?: boolean;
@@ -27,7 +31,7 @@ type ProviderApiKeyAuthMethodOptions = {
   metadata?: Record<string, string>;
   noteMessage?: string;
   noteTitle?: string;
-  applyConfig?: (cfg: OpenClawConfig) => OpenClawConfig;
+  applyConfig?: (cfg: OpenClawConfig, extra?: ProviderApiKeyAuthExtra) => OpenClawConfig;
 };
 
 const loadProviderApiKeyAuthRuntime = createLazyRuntimeSurface(
@@ -62,7 +66,7 @@ async function applyApiKeyConfig(params: {
   providerId: string;
   profileIds: string[];
   defaultModel?: string;
-  applyConfig?: (cfg: OpenClawConfig) => OpenClawConfig;
+  applyConfig?: (cfg: OpenClawConfig, extra?: ProviderApiKeyAuthExtra) => OpenClawConfig;
 }) {
   const { applyAuthProfileConfig, applyPrimaryModel } = await loadProviderApiKeyAuthRuntime();
   let next = params.ctx.config;
@@ -133,6 +137,16 @@ export function createProviderApiKeyAuthMethod(
       const credentialInput = capturedSecretInput ?? "";
       const profileIds = resolveProfileIds(params);
 
+      let extra: ProviderApiKeyAuthExtra | undefined;
+      if (params.promptFolderId && ctx.prompter && typeof ctx.prompter.text === "function") {
+        const folderIdRaw = await ctx.prompter.text({
+          message: params.promptFolderId.promptMessage,
+          placeholder: "b1g2abc3de4f5g6h7i8j9k",
+        });
+        const folderId = typeof folderIdRaw === "string" ? folderIdRaw.trim() : "";
+        if (folderId) extra = { folderId };
+      }
+
       return {
         profiles: profileIds.map((profileId) => ({
           profileId,
@@ -143,7 +157,9 @@ export function createProviderApiKeyAuthMethod(
             capturedMode ? { secretInputMode: capturedMode } : undefined,
           ),
         })),
-        ...(params.applyConfig ? { configPatch: params.applyConfig(ctx.config) } : {}),
+        ...(params.applyConfig
+          ? { configPatch: params.applyConfig(ctx.config, extra) }
+          : {}),
         ...(params.defaultModel ? { defaultModel: params.defaultModel } : {}),
       };
     },

@@ -5,7 +5,11 @@ import {
   type ProviderResolveDynamicModelContext,
   type ProviderRuntimeModel,
 } from "openclaw/plugin-sdk/core";
-import { createProviderApiKeyAuthMethod } from "openclaw/plugin-sdk/provider-auth";
+import {
+  createProviderApiKeyAuthMethod,
+  type OpenClawConfig,
+  type ProviderApiKeyAuthExtra,
+} from "openclaw/plugin-sdk/provider-auth";
 import { normalizeModelCompat } from "openclaw/plugin-sdk/provider-models";
 import { applyYandexgptConfig, YANDEXGPT_DEFAULT_MODEL_REF } from "./onboard.js";
 import {
@@ -95,10 +99,26 @@ export default definePluginEntry({
           optionKey: "yandexgptApiKey",
           flagName: "--yandexgpt-api-key",
           envVar: "YANDEX_API_KEY",
-          promptMessage: "Введите API-ключ Yandex (YANDEX_API_KEY). Укажите YANDEX_FOLDER_ID в конфиге или env.",
+          promptMessage: "Введите API-ключ Yandex (YANDEX_API_KEY) из консоли Яндекс Облака.",
+          promptFolderId: {
+            promptMessage: "Введите Folder ID (YANDEX_FOLDER_ID) — ID каталога в Яндекс Облаке, где включён AI Studio.",
+          },
           defaultModel: YANDEXGPT_DEFAULT_MODEL_REF,
           expectedProviders: ["yandexgpt"],
-          applyConfig: (cfg) => applyYandexgptConfig(cfg),
+          applyConfig: (cfg: OpenClawConfig, extra?: ProviderApiKeyAuthExtra) => {
+            let next = cfg;
+            if (extra?.folderId) {
+              const providers = { ...next.models?.providers };
+              const yandex = { ...(providers.yandexgpt as Record<string, unknown>) };
+              (yandex as Record<string, unknown>).folderId = extra.folderId;
+              providers.yandexgpt = yandex;
+              next = {
+                ...next,
+                models: { ...next.models, providers },
+              };
+            }
+            return applyYandexgptConfig(next);
+          },
           wizard: {
             choiceId: "yandexgpt-api-key",
             choiceLabel: "YandexGPT: API Key + Folder ID",
